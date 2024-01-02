@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "640472549980",
+    "firebase_url": "https://seoulf2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "seoulf2",
+    "storage_bucket": "seoulf2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640472549980:android:69c84d613a40586bb4f499",
+        "android_client_info": {
+          "package_name": "com.example.seoulf2_2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1uc6ZDR4bKGrNG-Kfp99f73o_PatuhvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:640472549980:android:6a3fcc54bf4eec4eb4f499",
+        "android_client_info": {
+          "package_name": "com.example.seoulf3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1uc6ZDR4bKGrNG-Kfp99f73o_PatuhvQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
