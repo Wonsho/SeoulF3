@@ -7,22 +7,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.LoadingDialog
+import com.example.seoulf3.databinding.ActivitySearchStockBinding
 import com.example.seoulf3.databinding.ActivitySearchStockSizeBinding
 
 class SearchStockSizeActivity : AppCompatActivity() {
-    private lateinit var viewModel: SearchStockSizeViewModel
     private lateinit var binding: ActivitySearchStockSizeBinding
+    private lateinit var viewModel: SearchStockSizeViewModel
     private lateinit var dialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!::viewModel.isInitialized) {
-            viewModel = ViewModelProvider(this)[SearchStockSizeViewModel::class.java]
-        }
-
         if (!::binding.isInitialized) {
             binding = ActivitySearchStockSizeBinding.inflate(layoutInflater)
+        }
+
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProvider(this)[SearchStockSizeViewModel::class.java]
         }
 
         if (!::dialog.isInitialized) {
@@ -30,47 +31,30 @@ class SearchStockSizeActivity : AppCompatActivity() {
         }
         setContentView(binding.root)
         dialog.show()
-        getIntentData()
-        setView()
-
-    }
-
-    private fun getIntentData() {
-        val itemName = if (intent.getStringExtra("name").isNullOrEmpty()) {
-            ""
-        } else {
-            intent.getStringExtra("name")!!
-        }
-
-        val itemSizeCode = if (intent.getStringExtra("size").isNullOrEmpty()) {
-            ""
-        } else {
-            intent.getStringExtra("size")!!
-        }
-
-        viewModel.setItemSizeCode(itemSizeCode)
-        viewModel.setItemName(itemName)
-        viewModel.getDataFromDB(object : DataBaseCallBack {
+        viewModel.setItemName(intent.getStringExtra("itemName").toString())
+        viewModel.setSizeCode(intent.getStringExtra("sizeCode").toString())
+        viewModel.getSizeListDataFromDatabase(object : DataBaseCallBack {
             override fun callBack() {
-                setListView()
+                setView()
+                setOnClick()
                 dialog.dismiss()
             }
-
         })
     }
 
-    private fun setView() {
-        binding.tvItemName.text = viewModel.getItemName()
+    private fun setOnClick() {
+        binding.btnBack.setOnClickListener { finish() }
     }
 
-
-    private fun setListView() {
+    private fun setView() {
+        binding.tvItemName.text = viewModel.getIteName()
         if (binding.lv.adapter == null) {
             binding.lv.adapter = StockListSizeAdapter()
+            (binding.lv.adapter as StockListSizeAdapter).setSizeList(viewModel.getSizeList())
+            (binding.lv.adapter as StockListSizeAdapter).setQuantity(viewModel.getQuantityData())
+            (binding.lv.adapter as StockListSizeAdapter).notifyDataSetChanged()
         }
-        (binding.lv.adapter as StockListSizeAdapter).setData(viewModel.getStockSizeData())
         (binding.lv.adapter as StockListSizeAdapter).notifyDataSetChanged()
     }
-
 
 }

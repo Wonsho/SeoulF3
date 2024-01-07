@@ -8,7 +8,7 @@ import com.example.seoulf3.databinding.InputSizeListBinding
 
 class InputItemSizeAdapter : BaseAdapter() {
     private var sizeList = mutableListOf<String>()
-    override fun getCount(): Int = sizeList.size
+    override fun getCount(): Int = this.sizeList.size
 
     override fun getItem(p0: Int): String = sizeList[p0]
 
@@ -20,13 +20,12 @@ class InputItemSizeAdapter : BaseAdapter() {
         } else {
             InputSizeListBinding.bind(p1)
         }
-
-        val item = sizeList[p0]
-        binding.tvItemSize.text = item
+        val itemSize = sizeList[p0]
+        binding.tvItemSize.text = itemSize
         return binding.root
     }
 
-    fun setList(list: MutableList<String>) {
-        this.sizeList = list
+    fun setSizeListData(sizeList: MutableList<String>) {
+        this.sizeList = sizeList
     }
 }

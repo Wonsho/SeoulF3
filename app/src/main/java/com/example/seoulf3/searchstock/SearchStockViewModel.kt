@@ -5,47 +5,40 @@ import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.OrderKoreanFirst
-import com.example.seoulf3.data.Category
+import com.example.seoulf3.data.ItemName
 import com.google.firebase.database.ktx.getValue
 
 class SearchStockViewModel : ViewModel() {
-    private var itemCategoryList = mutableListOf<Category>()
+    private var categoryList = mutableListOf<ItemName>()
     private var itemNameList = mutableListOf<String>()
 
+    fun getSizeCodeByItemName(index: Int): String {
+        val itemName = itemNameList[index]
 
-    fun getCategoryDataFromDB(dataBaseCallBack: DataBaseCallBack) {
-        if (itemCategoryList.size > 1) {
-            return
+        for (category in categoryList) {
+            if (category.name == itemName) {
+                return category.sizeCode.toString()
+            }
         }
-        MainViewModel.database.child(DatabaseEnum.CATEGORY.standard).get()
+        return ""
+    }
+
+
+    fun getItemNameByIndex(index: Int) = itemNameList[index]
+
+    fun getItemNameList() = this.itemNameList
+
+    fun getDataFromDatabase(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.ItemName.standard).get()
             .addOnSuccessListener {
-                val items = it.children
-
-                for (item in items) {
-                    itemCategoryList.add(item.getValue<Category>()!!)
-                }
-
-                for (category in itemCategoryList) {
+                for (item in it.children) {
+                    val category = item.getValue<ItemName>()!!
+                    categoryList.add(category)
                     itemNameList.add(category.name!!)
                 }
                 itemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
-                dataBaseCallBack.callBack()
+                callBack.callBack()
             }
-    }
-
-    fun getCategorySizeCode(index: Int): Category {
-        val itemName = itemNameList[index]
-
-        for (item in itemCategoryList) {
-            if (item.name == itemName) {
-                return Category(itemName, item.sizeCode)
-            }
-        }
-        return Category()
-    }
-
-    fun getItemList(): MutableList<String> {
-        return this.itemNameList
     }
 
 }

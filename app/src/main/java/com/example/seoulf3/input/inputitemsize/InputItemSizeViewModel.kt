@@ -6,35 +6,31 @@ import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
 
 class InputItemSizeViewModel : ViewModel() {
-    private var itemName: String = ""
-    private var itemSizeCode: String = ""
-    private var sizeList = mutableListOf<String>()
+    private var itemName = ""
+    private var itemSizeCode = ""
+    private var itemSizeList = mutableListOf<String>()
 
-    fun setItemName(name: String) {
-        this.itemName = name
+    fun setItemName(itemName: String) {
+        this.itemName = itemName
     }
 
-    fun setItemSizeCode(sizeCode: String) {
-        this.itemSizeCode = sizeCode
+    fun setItemCode(code: String) {
+        this.itemSizeCode = code
     }
-
-    fun getSizeList() = this.sizeList
 
     fun getItemName() = this.itemName
 
-    fun getItemSizeCode() = this.itemSizeCode
-
-    fun getSizeDataFromDB(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(itemSizeCode).get()
+    fun getItemSizeListFromDatabase(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(itemSizeCode).child("size").get()
             .addOnSuccessListener {
-                val size = it.child("size").value.toString()
-                val sizeList = size.split(",")
-
-                for (size in sizeList) {
-                    this.sizeList.add(size.trim())
+                val sizeString = it.value.toString()
+                val list = sizeString.split(",")
+                for (size in list) {
+                    itemSizeList.add(size.trim())
                 }
                 callBack.callBack()
             }
     }
 
+    fun getItemNameList() = this.itemSizeList
 }

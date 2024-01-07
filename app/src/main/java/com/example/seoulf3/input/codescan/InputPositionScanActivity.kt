@@ -20,6 +20,9 @@ class InputPositionScanActivity : AppCompatActivity() {
         setContentView(binding.root)
         setTv()
         startScan()
+        binding.btnRestart.setOnClickListener {
+            startScan()
+        }
     }
 
     private fun setTv() {
@@ -35,6 +38,7 @@ class InputPositionScanActivity : AppCompatActivity() {
         binding.tvItemSize.text = itemSize
     }
 
+
     private fun startScan() {
         binding.qrScanner.apply {
             setStatusText("")
@@ -43,9 +47,11 @@ class InputPositionScanActivity : AppCompatActivity() {
                 val intent = Intent()
 
                 val barcode = result.toString()
-                if (!(barcode[0] in 'A'..'Z')) {
-                    Toast.makeText(context, "잘못된 위치코드 입니다.\n$barcode", Toast.LENGTH_LONG).show()
-                    startScan()
+                if (barcode[0] !in 'A'..'Z') {
+                    if (barcode.split("-").size != 3) {
+                        Toast.makeText(context, "잘못된 위치코드 입니다.\n$barcode", Toast.LENGTH_LONG).show()
+                        startScan()
+                    }
                 } else {
                     intent.putExtra("barcode", result.toString())
                     setResult(RESULT_OK, intent)

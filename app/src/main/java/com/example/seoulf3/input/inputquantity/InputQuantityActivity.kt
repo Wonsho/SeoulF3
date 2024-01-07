@@ -54,6 +54,10 @@ class InputQuantityActivity : AppCompatActivity() {
         }
 
         binding.btnAddGoods.setOnClickListener {
+            if (binding.tvNum.text == "0") {
+                Toast.makeText(applicationContext, "숫자를 입력해주세요.", Toast.LENGTH_LONG).show()
+                return@setOnClickListener
+            }
             setResult(RESULT_OK, intent.putExtra("quantity", binding.tvNum.text.toString()))
             finish()
         }

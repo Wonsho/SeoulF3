@@ -1,4 +1,7 @@
 package com.example.seoulf3.data
 
-data class Quantity(var category: String? = "", var quantity: String? = "", var releaseQ: String? = "", var size: String? = "")
+
+//Key value is ItemCode
+data class Quantity(var quantity: String? = "", var releaseQuantity: String? = "")
+//Quantity (Code -> Quantity, ReleaseQuantity
 

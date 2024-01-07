@@ -8,29 +8,27 @@ import com.example.seoulf3.FirstSpellCheck
 import com.example.seoulf3.databinding.SearchStockNameListBinding
 
 class SearchStockListAdapter : BaseAdapter() {
-
     private var itemNameList = mutableListOf<String>()
+    override fun getCount(): Int = itemNameList.size
 
-    override fun getCount(): Int = this.itemNameList.size
-
-    override fun getItem(p0: Int): String = this.itemNameList[p0]
+    override fun getItem(p0: Int): String = itemNameList[p0]
 
     override fun getItemId(p0: Int): Long = p0.toLong()
 
     override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
-        val binding = if (p1 == null) {
+        var binding = if (p1 == null) {
             SearchStockNameListBinding.inflate(LayoutInflater.from(p2!!.context))
         } else {
             SearchStockNameListBinding.bind(p1)
         }
-        val item = itemNameList[p0]
-        binding.tvItemName.text = item
-        binding.tvSpell.text = FirstSpellCheck.firstSpellCheckAndReturn(item) + "  "
 
-        if (p0 != 0 && FirstSpellCheck.firstSpellCheckAndReturn(item) == FirstSpellCheck.firstSpellCheckAndReturn(
-                itemNameList[p0 - 1]
-            )
-        ) {
+        val itemName = itemNameList.get(p0)
+        val firstSpell = FirstSpellCheck.firstSpellCheckAndReturn(itemName)
+
+        binding.tvSpell.text = firstSpell
+        binding.tvItemName.text = itemName
+
+        if (p0 != 0 && FirstSpellCheck.firstSpellCheckAndReturn(itemNameList[p0 - 1]) == firstSpell) {
             binding.laySpell.visibility = View.GONE
         } else {
             binding.laySpell.visibility = View.VISIBLE
@@ -39,7 +37,8 @@ class SearchStockListAdapter : BaseAdapter() {
         return binding.root
     }
 
-    fun setItemListData(itemListData: MutableList<String>) {
-        this.itemNameList = itemListData
+    fun setItem(itemNameList: MutableList<String>) {
+        this.itemNameList = itemNameList
     }
+
 }

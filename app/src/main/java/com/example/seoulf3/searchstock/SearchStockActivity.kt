@@ -1,67 +1,62 @@
 package com.example.seoulf3.searchstock
 
+import android.app.AlertDialog
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.LoadingDialog
-import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivitySearchStockBinding
 import com.example.seoulf3.searchstock.searchstocksize.SearchStockSizeActivity
 
 class SearchStockActivity : AppCompatActivity() {
-
-    private lateinit var viewModel: SearchStockViewModel
     private lateinit var binding: ActivitySearchStockBinding
-    private lateinit var dialog: android.app.AlertDialog
-
-
-
+    private lateinit var viewModel: SearchStockViewModel
+    private lateinit var dialog: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (!::viewModel.isInitialized) {
-            viewModel = ViewModelProvider(this)[SearchStockViewModel::class.java]
-        }
 
         if (!::binding.isInitialized) {
             binding = ActivitySearchStockBinding.inflate(layoutInflater)
         }
 
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProvider(this)[SearchStockViewModel::class.java]
+        }
+
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@SearchStockActivity)
         }
-        setContentView(binding.root)
-        dialog.show()
-        setListView()
+
+        setView()
         setOnClick()
+        setContentView(binding.root)
     }
 
-
-    private fun setListView() {
-        if (binding.lv.adapter == null) {
-            binding.lv.adapter = SearchStockListAdapter()
+    fun setOnClick() {
+        binding.btnBack.setOnClickListener {
+            finish()
         }
-
-        viewModel.getCategoryDataFromDB(object : DataBaseCallBack {
-            override fun callBack() {
-                dialog.dismiss()
-                (binding.lv.adapter as SearchStockListAdapter).setItemListData(viewModel.getItemList())
-                (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
-            }
-        })
-    }
-
-    private fun setOnClick() {
-        binding.lv.setOnItemClickListener { adapterView, view, i, l ->
-            val category = viewModel.getCategorySizeCode(i)
+        binding.lv.setOnItemClickListener { _, _, i, _ ->
             val intent = Intent(this@SearchStockActivity, SearchStockSizeActivity::class.java)
-            intent.putExtra("name", category.name)
-            intent.putExtra("size", category.sizeCode)
+            intent.putExtra("sizeCode", viewModel.getSizeCodeByItemName(i))
+            intent.putExtra("itemName", viewModel.getItemNameByIndex(i))
             startActivity(intent)
         }
+    }
+
+    fun setView() {
+        if (binding.lv.adapter == null) {
+            binding.lv.adapter = SearchStockListAdapter()
+            viewModel.getDataFromDatabase(object : DataBaseCallBack {
+                override fun callBack() {
+                    (binding.lv.adapter as SearchStockListAdapter).setItem(viewModel.getItemNameList())
+                    (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
+                }
+            })
+        }
+        (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
     }
 }

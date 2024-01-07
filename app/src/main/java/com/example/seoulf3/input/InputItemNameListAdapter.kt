@@ -42,5 +42,4 @@ class InputItemNameListAdapter : BaseAdapter() {
     fun setItemListData(itemListData: MutableList<String>) {
         this.itemNameList = itemListData
     }
-
 }

@@ -9,6 +9,7 @@
 
 
 <LinearLayout
+
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintTop_toBottomOf="@id/guideline4"
     android:orientation="vertical"
@@ -66,6 +67,15 @@
         android:textColor="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/btn_restart"
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center"
+        android:src="@drawable/baseline_restart_alt_24"
+        android:layout_width="100dp"
+        android:layout_height="100dp"/>
+
 </LinearLayout>
 
     <com.journeyapps.barcodescanner.DecoratedBarcodeView

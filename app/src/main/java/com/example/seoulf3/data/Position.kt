@@ -1,3 +1,6 @@
 package com.example.seoulf3.data
 
-data class Position(var category: String? = "", var quantity: String? = "", var size: String? = "")
+
+
+//Position (Position -> ItemCode -> QuatityInPosition
+data class Position(var quantityInPosition: String)
