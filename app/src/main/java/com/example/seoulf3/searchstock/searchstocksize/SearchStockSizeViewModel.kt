@@ -1,112 +1,104 @@
 package com.example.seoulf3.searchstock.searchstocksize
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
+import com.example.seoulf3.data.ItemCode
 import com.example.seoulf3.data.Quantity
-import com.google.firebase.database.Exclude
-import com.google.firebase.database.IgnoreExtraProperties
 import com.google.firebase.database.ktx.getValue
-import kotlin.random.Random
 
 class SearchStockSizeViewModel : ViewModel() {
-    //todo itemName을 받아 그에 맞는 사이즈와 코드를 받는다
-    // 코드를 가지고 quantity를 참조 해당 사이즈의 개수와 출고 개수를 받는다.
-    // 해당 아이템의 사이즈 코드를 가지고 해당 아이템의 사이즈 코드를 가지고 있는다
-    private var sizeCode: String = ""
-    private var itemName: String = ""
+    private var itemCategoryCode = ""
+    private var itemSizeCode = ""
+    private var itemName = ""
+
     private var sizeList = mutableListOf<String>()
-    private var sizeCodeMap = mutableMapOf<String, String>()
-    private var codeKey = mutableListOf<String>()
-    private var codeQuantity = mutableMapOf<String, Quantity>()
-    private var sizeQuantity = mutableMapOf<String, Quantity>()
-    private var size = 0
-    fun setSizeCode(sizeCode: String) {
-        this.sizeCode = sizeCode
+    private var sizeMapQuantityData = mutableMapOf<String, String>()
+    private var itemCodeMapSize = mutableMapOf<String, String>()
+
+
+    fun getItemName() = this.itemName
+    fun getSizeMapQuantity() = this.sizeMapQuantityData
+    fun setItemCategoryCode(categoryCode: String) {
+        this.itemCategoryCode = categoryCode
+    }
+
+    fun setItemSizeCode(sizeCode: String) {
+        this.itemSizeCode = sizeCode
     }
 
     fun setItemName(itemName: String) {
         this.itemName = itemName
     }
 
-    fun getSizeList() = this.sizeList
+    fun getDataFromDatabase(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(itemSizeCode).get()
+            .addOnSuccessListener {
+                val itemSizeString = it.value.toString()
 
-    fun getQuantityData() = this.sizeQuantity
+                val sizeSplitList = itemSizeString.split(",")
+                val sizeList = mutableListOf<String>()
 
-    fun getSizeCode() = this.sizeCode
+                for (size in sizeSplitList) {
+                    sizeList.add(size.trim())
+                }
 
-    fun getIteName() = this.itemName
+                getSizeItemCodeMap(callBack)
+            }
+    }
 
-    fun getSizeListDataFromDatabase(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(sizeCode).child("size")
+    private fun getSizeItemCodeMap(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard).child(itemCategoryCode).get()
+            .addOnSuccessListener {
+                if (it.childrenCount == 0L) {
+                    callBack.callBack()
+                }
+
+                val itemList = it.children
+
+                for (i in itemList) {
+                    val item = i.getValue<ItemCode>()!!
+                    if (this.itemName == item.itemName) {
+                        sizeList.contains(item.itemSize)
+                        itemCodeMapSize[i.key.toString()] = item.itemSize.toString()
+                    }
+                }
+                getSizeMapQuantity(callBack)
+            }
+    }
+
+    private fun getSizeMapQuantity(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(this.itemCategoryCode)
             .get()
             .addOnSuccessListener {
-                val nameString = it.value.toString()
+                val quantityList = it.children
+                val itemCodeList = itemCodeMapSize.keys
 
-                val nameList = nameString.split(",")
+                for (i in quantityList) {
+                    if (itemCodeList.contains(i.key)) {
+                        val item = i.getValue<Quantity>()!!
+                        val reQ = item.releaseQuantity
+                        if (reQ.isNullOrBlank()) {
+                            "0"
+                        } else {
+                            reQ
+                        }
+                        val qN = item.quantity
 
-                for (name in nameList) {
-                    this.sizeList.add(name.trim())
-                }
-                getItemCode(callBack)
-            }
-    }
+                        if (qN.isNullOrBlank()) {
+                            "0"
+                        } else {
+                            qN
+                        }
+                        val showN = (qN!!.toInt() - reQ!!.toInt()).toString()
 
-    fun getItemCode(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard).child(itemName).get()
-            .addOnSuccessListener {
-                for (i in it.children) {
-                    val key = i.key.toString()
-                    val value = i.child("itemCode").value.toString()
-                    Log.e("getQuantityDataFromDatabase", key.toString())
-                    Log.e("getQuantityDataFromDatabase", value.toString())
-                    sizeCodeMap[key] = value
-                    codeKey.add(value)
-                }
-                getQuantityDataFromDatabase(callBack)
-            }
-    }
-
-    fun getQuantityDataFromDatabase(callBack: DataBaseCallBack) {
-        size = 0
-        Log.e("getQuantityDataFromDatabase", "start")
-        if (codeKey.size == 0) {
-            callBack.callBack()
-        }
-        for (code in codeKey) {
-            Log.e("getQuantityDataFromDatabase", "start1")
-
-            MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(code).get()
-                .addOnSuccessListener {
-                    val item = it.getValue<Quantity>()
-                    if (item != null) {
-                        Log.e("makeListData", item.quantity.toString())
-                        codeQuantity[code] = item
-                    }
-                    size++
-                    if (size == codeKey.size) {
-                        makeListData(callBack)
+                        val size = itemCodeMapSize[i.key]!!
+                        sizeMapQuantityData[size] = showN
                     }
                 }
-        }
-    }
-
-    fun makeListData(callBack: DataBaseCallBack) {
-
-        for (size in sizeList) {
-            var code = sizeCodeMap[size]
-
-            if (!code.isNullOrEmpty()) {
-                Log.e("makeListData", code)
-                val q = codeQuantity[code]
-                if (q != null) {
-                    Log.e("makeListData", q.quantity.toString())
-                    sizeQuantity[size] = q
-                }
+                callBack.callBack()
             }
-        }
-        callBack.callBack()
     }
+
 }

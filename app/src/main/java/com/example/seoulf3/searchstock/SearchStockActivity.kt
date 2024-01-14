@@ -29,9 +29,14 @@ class SearchStockActivity : AppCompatActivity() {
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@SearchStockActivity)
         }
-
-        setView()
-        setOnClick()
+        dialog.show()
+        viewModel.getItemDataFromDatabase(object : DataBaseCallBack {
+            override fun callBack() {
+                setView()
+                setOnClick()
+                dialog.dismiss()
+            }
+        })
         setContentView(binding.root)
     }
 
@@ -40,9 +45,14 @@ class SearchStockActivity : AppCompatActivity() {
             finish()
         }
         binding.lv.setOnItemClickListener { _, _, i, _ ->
+            val sizeCode = viewModel.getItemSizeCode(i)
+            val itemCategoryCode = viewModel.getItemCategoryCode(i)
+            val itemName = viewModel.getItemName(i)
+
             val intent = Intent(this@SearchStockActivity, SearchStockSizeActivity::class.java)
-            intent.putExtra("sizeCode", viewModel.getSizeCodeByItemName(i))
-            intent.putExtra("itemName", viewModel.getItemNameByIndex(i))
+            intent.putExtra("name", itemName)
+            intent.putExtra("size", sizeCode)
+            intent.putExtra("categoryCode", itemCategoryCode)
             startActivity(intent)
         }
     }
@@ -50,13 +60,8 @@ class SearchStockActivity : AppCompatActivity() {
     fun setView() {
         if (binding.lv.adapter == null) {
             binding.lv.adapter = SearchStockListAdapter()
-            viewModel.getDataFromDatabase(object : DataBaseCallBack {
-                override fun callBack() {
-                    (binding.lv.adapter as SearchStockListAdapter).setItem(viewModel.getItemNameList())
-                    (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
-                }
-            })
         }
+        (binding.lv.adapter as SearchStockListAdapter).setData(viewModel.getOnlyItemNameList())
         (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
     }
 }

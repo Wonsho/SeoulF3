@@ -5,9 +5,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.checkstock.BeforeCheckStockActivity
+
 import com.example.seoulf3.databinding.ActivityMainBinding
 import com.example.seoulf3.input.InputItemNameListActivity
 import com.example.seoulf3.outputupdate.OutPutUpdateActivity
+import com.example.seoulf3.outputwork.OutPutWorkActivity
 import com.example.seoulf3.searchstock.SearchStockActivity
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +30,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setOnClick()
         viewModel.buildDatabase()
+
     }
 
     private fun setOnClick() {
@@ -52,6 +55,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnOutput.setOnClickListener {
+            val intent = Intent(this@MainActivity, OutPutWorkActivity::class.java)
+            startActivity(intent)
         }
     }
 }

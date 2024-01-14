@@ -2,6 +2,7 @@ package com.example.seoulf3.input.inputquantity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityInputQuantityBinding
@@ -70,15 +71,20 @@ class InputQuantityActivity : AppCompatActivity() {
                 binding.tvNum.text = input
             }
         }
-        binding.n0.setOnClickListener {inputNum("0") }
-        binding.n1.setOnClickListener {inputNum("1") }
-        binding.n2.setOnClickListener {inputNum("2") }
-        binding.n3.setOnClickListener {inputNum("3") }
-        binding.n4.setOnClickListener {inputNum("4") }
-        binding.n5.setOnClickListener {inputNum("5") }
-        binding.n6.setOnClickListener {inputNum("6") }
-        binding.n7.setOnClickListener {inputNum("7") }
-        binding.n8.setOnClickListener {inputNum("8") }
-        binding.n9.setOnClickListener {inputNum("9") }
+
+        binding.c.setOnLongClickListener {
+            binding.tvNum.text = "0"
+            false
+        }
+        binding.n0.setOnClickListener { inputNum("0") }
+        binding.n1.setOnClickListener { inputNum("1") }
+        binding.n2.setOnClickListener { inputNum("2") }
+        binding.n3.setOnClickListener { inputNum("3") }
+        binding.n4.setOnClickListener { inputNum("4") }
+        binding.n5.setOnClickListener { inputNum("5") }
+        binding.n6.setOnClickListener { inputNum("6") }
+        binding.n7.setOnClickListener { inputNum("7") }
+        binding.n8.setOnClickListener { inputNum("8") }
+        binding.n9.setOnClickListener { inputNum("9") }
     }
 }

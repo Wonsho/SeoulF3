@@ -10,10 +10,10 @@ import com.example.seoulf3.databinding.SearchStockNameListBinding
 class InputItemNameListAdapter : BaseAdapter() {
 
     private var itemNameList = mutableListOf<String>()
-
     override fun getCount(): Int = this.itemNameList.size
 
-    override fun getItem(p0: Int): String = this.itemNameList[p0]
+
+    override fun getItem(p0: Int): Any = this.itemNameList[p0]
 
     override fun getItemId(p0: Int): Long = p0.toLong()
 
@@ -23,23 +23,23 @@ class InputItemNameListAdapter : BaseAdapter() {
         } else {
             SearchStockNameListBinding.bind(p1)
         }
-        val item = itemNameList[p0]
-        binding.tvItemName.text = item
-        binding.tvSpell.text = FirstSpellCheck.firstSpellCheckAndReturn(item) + "  "
 
-        if (p0 != 0 && FirstSpellCheck.firstSpellCheckAndReturn(item) == FirstSpellCheck.firstSpellCheckAndReturn(
-                itemNameList[p0 - 1]
-            )
-        ) {
-            binding.laySpell.visibility = View.GONE
-        } else {
+        val itemName = itemNameList[p0]
+        val firstSpell = FirstSpellCheck.firstSpellCheckAndReturn(itemName)
+        binding.tvItemName.text = itemName
+        binding.tvSpell.text = " "+firstSpell + " "
+
+        if (p0 == 0 || firstSpell != FirstSpellCheck.firstSpellCheckAndReturn(itemNameList[p0 - 1])) {
             binding.laySpell.visibility = View.VISIBLE
+        } else {
+            binding.laySpell.visibility = View.GONE
         }
 
         return binding.root
     }
 
-    fun setItemListData(itemListData: MutableList<String>) {
-        this.itemNameList = itemListData
+
+    fun setData(itemNameList: MutableList<String>) {
+        this.itemNameList = itemNameList
     }
 }

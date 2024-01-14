@@ -9,36 +9,49 @@ import com.example.seoulf3.data.ItemName
 import com.google.firebase.database.ktx.getValue
 
 class SearchStockViewModel : ViewModel() {
-    private var categoryList = mutableListOf<ItemName>()
-    private var itemNameList = mutableListOf<String>()
+    private var itemNameList = mutableListOf<ItemName>()
+    private var onlyItemNameList = mutableListOf<String>()
+    private var itemNameMapKey = mutableMapOf<String, String>()
 
-    fun getSizeCodeByItemName(index: Int): String {
-        val itemName = itemNameList[index]
+    fun getItemName(i: Int): String {
+        return onlyItemNameList[i]
+    }
 
-        for (category in categoryList) {
-            if (category.name == itemName) {
-                return category.sizeCode.toString()
+    fun getOnlyItemNameList() = this.onlyItemNameList
+
+    fun getItemCategoryCode(i: Int): String {
+        val itemName = onlyItemNameList.get(i)
+        return itemNameMapKey[itemName]!!
+    }
+
+    fun getItemSizeCode(i: Int): String {
+        val itemName = onlyItemNameList.get(i)
+
+        for (item in itemNameList) {
+            if (itemName == item.name) {
+                return item.sizeCode!!
             }
         }
         return ""
     }
 
-
-    fun getItemNameByIndex(index: Int) = itemNameList[index]
-
-    fun getItemNameList() = this.itemNameList
-
-    fun getDataFromDatabase(callBack: DataBaseCallBack) {
+    fun getItemDataFromDatabase(callBack: DataBaseCallBack) {
         MainViewModel.database.child(DatabaseEnum.ItemName.standard).get()
             .addOnSuccessListener {
-                for (item in it.children) {
-                    val category = item.getValue<ItemName>()!!
-                    categoryList.add(category)
-                    itemNameList.add(category.name!!)
+                itemNameList = mutableListOf()
+                itemNameMapKey = mutableMapOf()
+                onlyItemNameList = mutableListOf()
+
+                val list = it.children
+
+                for (i in list) {
+                    val item = i.getValue<ItemName>()!!
+                    itemNameList.add(item)
+                    onlyItemNameList.add(item.name!!)
+                    itemNameMapKey[item.name.toString()] = i.key.toString()
                 }
-                itemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
+                onlyItemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
                 callBack.callBack()
             }
     }
-
 }
