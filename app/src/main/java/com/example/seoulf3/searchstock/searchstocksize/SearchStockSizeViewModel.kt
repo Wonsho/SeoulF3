@@ -1,5 +1,6 @@
 package com.example.seoulf3.searchstock.searchstocksize
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
@@ -9,49 +10,58 @@ import com.example.seoulf3.data.Quantity
 import com.google.firebase.database.ktx.getValue
 
 class SearchStockSizeViewModel : ViewModel() {
-    private var itemCategoryCode = ""
-    private var itemSizeCode = ""
-    private var itemName = ""
+    private var itemCategoryCode: String = ""
+    private var itemName: String = ""
+    private var itemSizeCode: String = ""
 
-    private var sizeList = mutableListOf<String>()
-    private var sizeMapQuantityData = mutableMapOf<String, String>()
-    private var itemCodeMapSize = mutableMapOf<String, String>()
+    private var itemSizeList = mutableListOf<String>()
+
+    private var itemCodeList = mutableListOf<String>()
+
+    private var sizeMapItemCode = mutableMapOf<String, String>()
+    private var itemCodeMapQ = mutableMapOf<String, String>()
+    private var itemSizeMapQ = mutableMapOf<String, String>()
 
 
-    fun getItemName() = this.itemName
-    fun getSizeMapQuantity() = this.sizeMapQuantityData
-    fun setItemCategoryCode(categoryCode: String) {
-        this.itemCategoryCode = categoryCode
-    }
+    fun getItemSizeList() = this.itemSizeList
 
-    fun setItemSizeCode(sizeCode: String) {
-        this.itemSizeCode = sizeCode
-    }
-
+    fun getItemSizeMapQ() = this.itemSizeMapQ
     fun setItemName(itemName: String) {
         this.itemName = itemName
     }
 
+    fun setSizeCode(sizeCode: String) {
+        this.itemSizeCode = sizeCode
+    }
+
+    fun setItemCategoryCode(categoryCode: String) {
+        this.itemCategoryCode = categoryCode
+    }
+
     fun getDataFromDatabase(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(itemSizeCode).get()
+        sizeMapItemCode = mutableMapOf()
+        itemCodeMapQ = mutableMapOf()
+        itemSizeMapQ = mutableMapOf()
+        itemSizeList = mutableListOf()
+        itemCodeList = mutableListOf()
+
+        MainViewModel.database.child(DatabaseEnum.STANDARD.standard).child(itemSizeCode)
+            .child("size").get()
             .addOnSuccessListener {
-                val itemSizeString = it.value.toString()
-
-                val sizeSplitList = itemSizeString.split(",")
-                val sizeList = mutableListOf<String>()
-
-                for (size in sizeSplitList) {
-                    sizeList.add(size.trim())
+                val sizeList = it.value.toString().split(",")
+                for (size in sizeList) {
+                    itemSizeList.add(size.trim())
                 }
-
-                getSizeItemCodeMap(callBack)
+                getItemCode(callBack)
             }
     }
 
-    private fun getSizeItemCodeMap(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard).child(itemCategoryCode).get()
+    fun getItemCode(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard)
+            .child(itemCategoryCode)
+            .get()
             .addOnSuccessListener {
-                if (it.childrenCount == 0L) {
+                if (!it.hasChildren()) {
                     callBack.callBack()
                 }
 
@@ -59,46 +69,48 @@ class SearchStockSizeViewModel : ViewModel() {
 
                 for (i in itemList) {
                     val item = i.getValue<ItemCode>()!!
-                    if (this.itemName == item.itemName) {
-                        sizeList.contains(item.itemSize)
-                        itemCodeMapSize[i.key.toString()] = item.itemSize.toString()
+                    if (item.itemName == itemName) {
+                        sizeMapItemCode[item.itemSize!!] = i.key.toString()
+                        itemCodeList.add(i.key.toString())
                     }
                 }
-                getSizeMapQuantity(callBack)
+                checkQuantity(callBack)
             }
     }
 
-    private fun getSizeMapQuantity(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(this.itemCategoryCode)
+    fun checkQuantity(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(itemCategoryCode)
             .get()
             .addOnSuccessListener {
-                val quantityList = it.children
-                val itemCodeList = itemCodeMapSize.keys
+                if (!it.hasChildren()) {
+                    callBack.callBack()
+                }
 
-                for (i in quantityList) {
-                    if (itemCodeList.contains(i.key)) {
+                val qList = it.children
+
+                for (i in qList) {
+
+                    if (itemCodeList.contains(i.key.toString())) {
                         val item = i.getValue<Quantity>()!!
-                        val reQ = item.releaseQuantity
-                        if (reQ.isNullOrBlank()) {
-                            "0"
-                        } else {
-                            reQ
-                        }
-                        val qN = item.quantity
-
-                        if (qN.isNullOrBlank()) {
-                            "0"
-                        } else {
-                            qN
-                        }
-                        val showN = (qN!!.toInt() - reQ!!.toInt()).toString()
-
-                        val size = itemCodeMapSize[i.key]!!
-                        sizeMapQuantityData[size] = showN
+                        val q = item.quantity.toString().toInt()
+                        val reQ = item.releaseQuantity.toString().toInt()
+                        val sum = q - reQ
+                        itemCodeMapQ[i.key.toString()] = sum.toString()
                     }
                 }
-                callBack.callBack()
+                makeListData(callBack)
             }
     }
 
+    fun makeListData(callBack: DataBaseCallBack) {
+
+        for (s in itemSizeList) {
+            val q = itemSizeMapQ[s]
+            if (!q.isNullOrBlank()) {
+                itemSizeMapQ[s] = q
+            }
+        }
+        callBack.callBack()
+    }
 }

@@ -30,37 +30,37 @@ class SearchStockSizeActivity : AppCompatActivity() {
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@SearchStockSizeActivity)
         }
+        val sizeCode = intent.getStringExtra("size")
+        val category = intent.getStringExtra("category")
+        val itemName = intent.getStringExtra("name")
 
+        viewModel.setSizeCode(sizeCode.toString())
+        viewModel.setItemName(itemName.toString())
+        viewModel.setItemCategoryCode(category.toString())
+        setContentView(binding.root)
         dialog.show()
-        val itemName = intent.getStringExtra("name").toString()
-        val itemSizeCode = intent.getStringExtra("size").toString()
-        val itemCategoryCode = intent.getStringExtra("categoryCode").toString()
-
-        viewModel.setItemName(itemName)
-        viewModel.setItemSizeCode(itemSizeCode)
-        viewModel.setItemCategoryCode(itemCategoryCode)
         viewModel.getDataFromDatabase(object : DataBaseCallBack {
             override fun callBack() {
                 dialog.dismiss()
-                setView()
+                setListView()
                 setOnClick()
             }
 
         })
-        setContentView(binding.root)
+    }
+
+
+    fun setListView() {
+        if (binding.lv.adapter == null) {
+            binding.lv.adapter = StockListSizeAdapter()
+        }
+        (binding.lv.adapter as StockListSizeAdapter).setParentsData(viewModel.getItemSizeList())
+        (binding.lv.adapter as StockListSizeAdapter).setChildData(viewModel.getItemSizeMapQ())
+        (binding.lv.adapter as StockListSizeAdapter).notifyDataSetChanged()
+
     }
 
     fun setOnClick() {
         binding.btnBack.setOnClickListener { finish() }
-    }
-
-    fun setView() {
-        binding.tvItemName.text = viewModel.getItemName()
-
-        if (binding.lv.adapter == null) {
-            binding.lv.adapter = StockListSizeAdapter()
-        }
-        (binding.lv.adapter as StockListSizeAdapter).setData(viewModel.getSizeMapQuantity())
-        (binding.lv.adapter as StockListSizeAdapter).notifyDataSetChanged()
     }
 }

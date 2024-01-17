@@ -2,7 +2,6 @@ package com.example.seoulf3.input
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -19,9 +18,10 @@ class InputItemNameListActivity : AppCompatActivity() {
     private lateinit var binding: ActivityInputItemNameListBinding
     private lateinit var dialog: android.app.AlertDialog
 
-    interface RecommendCallBack {
+    interface CallbackPosition {
         fun callBack(position: String)
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -36,22 +36,45 @@ class InputItemNameListActivity : AppCompatActivity() {
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@InputItemNameListActivity)
         }
-
         dialog.show()
-
-        viewModel.getDateFromDatabase(object : DataBaseCallBack {
+        setContentView(binding.root)
+        viewModel.getItemNameDataFromDatabase(object : DataBaseCallBack {
             override fun callBack() {
                 dialog.dismiss()
-                setView()
+                setListView()
                 setOnClick()
             }
         })
-        setContentView(binding.root)
-
     }
 
+    val FROM_SIZE = 0
+    val FROM_SCAN = 1
+    val FROM_QUANTITY = 2
 
-    fun setView() {
+
+    fun setOnClick() {
+
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
+
+        binding.lv.setOnItemClickListener { _, _, i, _ ->
+            val itemName = viewModel.getItemNameByIndex(i)
+            val itemCategoryCode = viewModel.getItemCategoryCodeByIndex(i)
+            val itemSizeCode = viewModel.getItemSizeCodeByIndex(i)
+            val chooseItemInfo = viewModel.getChooseItem()
+            chooseItemInfo.itemName = itemName
+            chooseItemInfo.itemCategoryCode = itemCategoryCode
+            chooseItemInfo.itemSizeCode = itemSizeCode
+            viewModel.setChooseItem(chooseItemInfo)
+            val intent = Intent(this@InputItemNameListActivity, InputItemSizeActivity::class.java)
+            intent.putExtra("name", itemName)
+            intent.putExtra("sizeCode", itemSizeCode)
+            startActivityForResult(intent, FROM_SIZE)
+        }
+    }
+
+    fun setListView() {
         if (binding.lv.adapter == null) {
             binding.lv.adapter = InputItemNameListAdapter()
         }
@@ -59,76 +82,82 @@ class InputItemNameListActivity : AppCompatActivity() {
         (binding.lv.adapter as InputItemNameListAdapter).notifyDataSetChanged()
     }
 
-    val FROM_SELECT_SIZE = 1
-    val FROM_SCAN = 2
-    val FROM_QUANTITY = 3
-    fun setOnClick() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.lv.setOnItemClickListener { _, _, i, _ ->
-            viewModel.resetData()
-            viewModel.setItemNameByIndex(i)
-            viewModel.setItemSizeCodeByIndex(i)
-            viewModel.setItemCategoryCodeByIndex(i)
-            val intent = Intent(this@InputItemNameListActivity, InputItemSizeActivity::class.java)
-            intent.putExtra("name", viewModel.getChooseItemName())
-            intent.putExtra("size", viewModel.getChooseItemSizeCode())
-            intent.putExtra("category", viewModel.getChooseItemCategoryCode())
-            startActivityForResult(intent, FROM_SELECT_SIZE)
-        }
-    }
-
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == RESULT_OK) {
-            if (requestCode == FROM_SELECT_SIZE) {
-                val chooseSize = data!!.getStringExtra("size")
-                viewModel.setChooseItemSize(chooseSize.toString())
-                val intent = Intent(this@InputItemNameListActivity, InputPositionScanActivity::class.java)
-                intent.putExtra("name", viewModel.getChooseItemName())
-                intent.putExtra("size", viewModel.getChooseSize())
-                viewModel.getRecommendPosition(object : RecommendCallBack {
+
+            if (requestCode == FROM_SIZE) {
+                //todo 수량 입력후
+                val chooseItemSize = data!!.getStringExtra("size").toString()
+                val chooseItem = viewModel.getChooseItem()
+                chooseItem.itemSize = chooseItemSize
+                viewModel.setChooseItem(chooseItem)
+                //todo 추천 자리 가져오기
+                dialog.show()
+                viewModel.getRecommendPosition(object : CallbackPosition {
                     override fun callBack(position: String) {
-                        intent.putExtra("recommend", position)
+                        dialog.dismiss()
+                        val chooseItem = viewModel.getChooseItem()
+                        val intent = Intent(
+                            this@InputItemNameListActivity,
+                            InputPositionScanActivity::class.java
+                        )
+                        chooseItem.itemRecommendPosition = position
+                        viewModel.setChooseItem(chooseItem)
+
+                        intent.putExtra("name", chooseItem.itemName)
+                        intent.putExtra("size", chooseItem.itemSize)
+                        intent.putExtra("recommend", chooseItem.itemRecommendPosition)
                         startActivityForResult(intent, FROM_SCAN)
                     }
                 })
 
-            }
 
-            if(requestCode == FROM_SCAN) {
-                //todo 스캔 후
+            } else if (requestCode == FROM_SCAN) {
+            //todo 스캔 후
                 val code = data!!.getStringExtra("barcode").toString()
-                viewModel.setChoosePosition(code)
-                val intent = Intent(this@InputItemNameListActivity, InputQuantityActivity::class.java)
-                intent.putExtra("name", viewModel.getChooseItemName())
-                intent.putExtra("position", code)
-                intent.putExtra("size", viewModel.getChooseSize())
-                startActivityForResult(intent,FROM_QUANTITY)
-            }
+                val chooseItemInfo = viewModel.getChooseItem()
+                chooseItemInfo.itemPosition = code
+                viewModel.setChooseItem(chooseItemInfo)
 
-            if (requestCode == FROM_QUANTITY) {
-                //todo insert
-                val q = data!!.getStringExtra("quantity").toString()
-                viewModel.setChooseQuantity(q)
+                val intent = Intent(this@InputItemNameListActivity, InputQuantityActivity::class.java)
+                intent.putExtra("name", chooseItemInfo.itemName)
+                intent.putExtra("size", chooseItemInfo.itemSize)
+                intent.putExtra("position", code)
+                startActivityForResult(intent, FROM_QUANTITY)
+
+            } else if (requestCode == FROM_QUANTITY) {
+            //todo 수량 입력후
+                val quantity = data!!.getStringExtra("quantity").toString()
+                val chooseItem = viewModel.getChooseItem()
+                chooseItem.itemQuantity = quantity
+                viewModel.setChooseItem(chooseItem)
+                dialog.show()
                 viewModel.insertData(object : DataBaseCallBack {
                     override fun callBack() {
-                        Toast.makeText(applicationContext, "입고 처리 되었습니다.", Toast.LENGTH_LONG).show()
+                        dialog.dismiss()
+                        Toast.makeText(applicationContext, "입고 처리 되었습니다.", Toast.LENGTH_SHORT).show()
                     }
                 })
-                viewModel.resetData()
             }
 
         } else if (resultCode == RESULT_FIRST_USER) {
-            //todo 다시스캔
-            val intent = Intent(this@InputItemNameListActivity, InputPositionScanActivity::class.java)
-            intent.putExtra("name", viewModel.getChooseItemName())
-            intent.putExtra("size", viewModel.getChooseSize())
-            intent.putExtra("recommend", viewModel.getRecommendPosition())
+            //todo 재스캔
+            val chooseItem = viewModel.getChooseItem()
+            val intent = Intent(
+                this@InputItemNameListActivity,
+                InputPositionScanActivity::class.java
+            )
+            intent.putExtra("name", chooseItem.itemName)
+            intent.putExtra("size", chooseItem.itemSize)
+            intent.putExtra("recommend", chooseItem.itemRecommendPosition)
             startActivityForResult(intent, FROM_SCAN)
+
         } else {
-            //todo 취소
-            viewModel.resetData()
+            viewModel.setChooseItem(InputItemListViewModel.ChooseItemInfo())
+            //todo 끝냄
         }
     }
 }

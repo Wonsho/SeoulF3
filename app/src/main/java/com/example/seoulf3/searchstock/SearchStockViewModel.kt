@@ -9,48 +9,45 @@ import com.example.seoulf3.data.ItemName
 import com.google.firebase.database.ktx.getValue
 
 class SearchStockViewModel : ViewModel() {
-    private var itemNameList = mutableListOf<ItemName>()
-    private var onlyItemNameList = mutableListOf<String>()
-    private var itemNameMapKey = mutableMapOf<String, String>()
+    private var itemNameList = mutableListOf<String>()
+    private var itemCategoryDataList = mutableListOf<ItemName>()
+    private var itemNameMapCategoryCode = mutableMapOf<String, String>()
 
-    fun getItemName(i: Int): String {
-        return onlyItemNameList[i]
+
+    fun getItemNameByIndex(i: Int): String {
+        val itemName = itemNameList[i].toString()
+        return itemName
     }
 
-    fun getOnlyItemNameList() = this.onlyItemNameList
-
-    fun getItemCategoryCode(i: Int): String {
-        val itemName = onlyItemNameList.get(i)
-        return itemNameMapKey[itemName]!!
+    fun getItemCategoryCodeByIndex(i : Int): String {
+        val itemName = getItemNameByIndex(i)
+        return itemNameMapCategoryCode[itemName].toString()
     }
 
-    fun getItemSizeCode(i: Int): String {
-        val itemName = onlyItemNameList.get(i)
+    fun getItemSizeCode(i : Int): String {
+        val itemName = getItemNameByIndex(i)
 
-        for (item in itemNameList) {
-            if (itemName == item.name) {
-                return item.sizeCode!!
+        for (i in itemCategoryDataList) {
+            if (i.name == itemName) {
+                return i.sizeCode.toString()
             }
         }
         return ""
     }
 
-    fun getItemDataFromDatabase(callBack: DataBaseCallBack) {
+    fun getItemNameList() = this.itemNameList
+    fun getDataFromDatabase(callBack: DataBaseCallBack) {
         MainViewModel.database.child(DatabaseEnum.ItemName.standard).get()
             .addOnSuccessListener {
-                itemNameList = mutableListOf()
-                itemNameMapKey = mutableMapOf()
-                onlyItemNameList = mutableListOf()
+                val itemList = it.children
 
-                val list = it.children
-
-                for (i in list) {
+                for (i in itemList) {
                     val item = i.getValue<ItemName>()!!
-                    itemNameList.add(item)
-                    onlyItemNameList.add(item.name!!)
-                    itemNameMapKey[item.name.toString()] = i.key.toString()
+                    itemNameList.add(item.name!!)
+                    itemCategoryDataList.add(item)
+                    itemNameMapCategoryCode[item.name.toString()] = i.key.toString()
                 }
-                onlyItemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
+                itemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
                 callBack.callBack()
             }
     }

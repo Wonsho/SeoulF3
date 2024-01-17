@@ -32,7 +32,7 @@ class InputItemSizeActivity : AppCompatActivity() {
             dialog = LoadingDialog().getDialog(this@InputItemSizeActivity)
         }
         val name = intent.getStringExtra("name")
-        val code = intent.getStringExtra("size")
+        val code = intent.getStringExtra("sizeCode")
         viewModel.setItemName(name.toString())
         viewModel.setItemCode(code.toString())
         dialog.show()

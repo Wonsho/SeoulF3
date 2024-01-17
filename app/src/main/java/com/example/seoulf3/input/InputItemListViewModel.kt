@@ -14,274 +14,254 @@ import com.google.firebase.database.ktx.getValue
 import kotlin.random.Random
 
 class InputItemListViewModel : ViewModel() {
-    private var chooseItemName = ""
-    private var chooseItemCategoryCode = ""
-    private var chooseItemPosition = ""
-    private var chooseItemSizeCode = ""
-    private var chooseItemQuantity = ""
-    private var chooseItemSize = ""
-    private var chooseItemCode = ""
-    private var recommendPosition = ""
-    private var hasQuantity = false
+    data class ChooseItemInfo(
+        var itemName: String = "",
+        var itemCategoryCode: String = "",
+        var itemSizeCode: String = "",
+        var itemPosition: String = "",
+        var itemSize: String = "",
+        var itemQuantity: String = "",
+        var itemRecommendPosition: String = "",
+        var itemCode: String = "",
+        var hasQ: Boolean = true,
+        var hasCode: Boolean = false
+    )
 
-    private var itemCategoryList = mutableListOf<ItemName>()
+    private var chooseItemInfo = ChooseItemInfo()
     private var itemNameList = mutableListOf<String>()
-    private var itemNameMapItemCategoryCode = mutableMapOf<String, String>()
-
-
-    fun setChooseQuantity(q: String) {
-        this.chooseItemQuantity = q
-    }
-
-
-    fun setChoosePosition(position: String) {
-        this.chooseItemPosition = position
-    }
-
-    fun getRecommendPosition() = this.recommendPosition
-    fun setChooseItemSize(size: String) {
-        this.chooseItemSize = size
-    }
-
-    fun getChooseSize() = this.chooseItemSize
-
-    fun resetData() {
-        chooseItemName = ""
-        chooseItemCategoryCode = ""
-        chooseItemPosition = ""
-        chooseItemSizeCode = ""
-        chooseItemQuantity = ""
-        chooseItemSize = ""
-        chooseItemCode = ""
-        recommendPosition = ""
-        hasQuantity = false
-    }
-
-    fun getChooseItemName() = this.chooseItemName
-
-    fun getChooseItemSizeCode() = this.chooseItemSizeCode
-
-    fun getChooseItemCategoryCode() = this.chooseItemCategoryCode
-    fun setItemNameByIndex(i: Int) {
-        chooseItemName = itemNameList[i]
-    }
-
-    fun setItemSizeCodeByIndex(i: Int) {
-        val itemName = itemNameList[i]
-
-        for (item in itemCategoryList) {
-            if (item.name == itemName) {
-                chooseItemSizeCode = item.sizeCode!!
-                break
-            }
-        }
-    }
-
-    fun setItemCategoryCodeByIndex(i: Int) {
-        val itemName = itemNameList[i]
-        chooseItemCategoryCode = itemNameMapItemCategoryCode[itemName]!!
-    }
-
-    fun getItemNameList() = this.itemNameList
-
-
-    fun getDateFromDatabase(callBack: DataBaseCallBack) {
+    private var itemCategoryList = mutableListOf<ItemName>()
+    private var itemNameMapCategoryCode = mutableMapOf<String, String>()
+    fun getItemNameDataFromDatabase(callBack: DataBaseCallBack) {
         MainViewModel.database.child(DatabaseEnum.ItemName.standard).get()
             .addOnSuccessListener {
-                val itemList = it.children
+                val itemNameList = it.children
 
-                for (i in itemList) {
-                    val item = i.getValue<ItemName>()!!
-                    val itemCategoryCode = i.key.toString()
-                    val itemName = item.name
-                    itemCategoryList.add(item)
-                    itemNameList.add(itemName!!)
-                    itemNameMapItemCategoryCode[itemName] = itemCategoryCode
+                for (i in itemNameList) {
+                    val item = i.getValue<ItemName>()
+                    val itemName = item!!.name
+                    itemCategoryList.add(item!!)
+                    this.itemNameList.add(itemName!!)
+                    this.itemNameMapCategoryCode[itemName!!] = i.key.toString()
                 }
                 this.itemNameList.sortWith(Comparator(OrderKoreanFirst::compare))
                 callBack.callBack()
             }
     }
 
+    fun setChooseItem(chooseItemInfo: ChooseItemInfo) {
+        this.chooseItemInfo = chooseItemInfo
+    }
 
-    fun getRecommendPosition(callBack: InputItemNameListActivity.RecommendCallBack) {
-        //todo 아이템 코드가 있는지 조회 -> 없으면 임의의 코드 만들어주기
-        // -> 있으면 -> 코드 입력
+    fun getChooseItem() = this.chooseItemInfo
+    fun getItemSizeCodeByIndex(index: Int): String {
+        val itemName = getItemNameByIndex(index)
 
-        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard).child(chooseItemCategoryCode)
-            .get()
+        for (i in itemCategoryList) {
+            if (i.name == itemName) {
+                return i.sizeCode!!
+            }
+        }
+        return ""
+    }
+
+
+    fun getItemCategoryCodeByIndex(index: Int): String {
+        val itemName = getItemNameByIndex(index)
+        val itemCategoryCode = itemNameMapCategoryCode[itemName]
+        return itemCategoryCode.toString()
+    }
+
+    fun getItemNameByIndex(index: Int): String {
+        return this.itemNameList[index]
+    }
+
+
+    fun getItemNameList() = this.itemNameList
+
+    fun getRecommendPosition(callBack: InputItemNameListActivity.CallbackPosition) {
+        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard)
+            .child(chooseItemInfo.itemCategoryCode).get()
             .addOnSuccessListener {
                 val itemList = it.children
 
                 for (i in itemList) {
-                    val item = i.getValue<ItemCode>()
+                    val item = i.getValue<ItemCode>()!!
 
-                    if (item!!.itemName == chooseItemName && item!!.itemSize == chooseItemSize) {
-                        //todo 아이템 코드가 존재
+                    if (item.itemName == chooseItemInfo.itemName && item.itemSize == chooseItemInfo.itemSize) {
+                        //todo 아이템 코드가 있음 -> 수량 체크
+                        chooseItemInfo.hasCode = true
                         val itemCode = i.key.toString()
-                        this.chooseItemCode = itemCode
-                        //todo 수량 확인
-                        checkHasQuantity(callBack)
+                        chooseItemInfo.itemCode = itemCode
+                        checkQuantity(callBack)
                         return@addOnSuccessListener
                     }
                 }
-                val code1 = Random.nextLong(999999999999999999)
-                val code2 = Random.nextLong(999999999)
-                val resultCode = code1.toString() + code2
-                this.chooseItemCode = resultCode
-                MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard)
-                    .child(chooseItemCategoryCode).child(chooseItemCode)
-                    .setValue(ItemCode(chooseItemName, chooseItemSize))
-                callBack.callBack("")
+                //todo 아이템 코드가 없음 -> 생성
+                chooseItemInfo.hasCode = false
+                makeItemCode(callBack)
+                return@addOnSuccessListener
             }
     }
 
-    fun checkHasQuantity(callBack: InputItemNameListActivity.RecommendCallBack) {
-        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(chooseItemCategoryCode)
-            .child(chooseItemCode).get()
+    private fun checkQuantity(callBack: InputItemNameListActivity.CallbackPosition) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(chooseItemInfo.itemCategoryCode)
+            .child(chooseItemInfo.itemCode).get()
             .addOnSuccessListener {
-                val itemQ = it.getValue<Quantity>()
 
-                if (itemQ == null) {
-                    //todo 수량 없음
-                    Log.e("checkQ", "Y")
-                    this.hasQuantity = false
+                if (it.value == null) {
+                    Log.e("inputViewModel", "quantity is null")
+                    //todo 수량이 없음
+                    chooseItemInfo.hasQ = false
                     callBack.callBack("")
+                    return@addOnSuccessListener
                 } else {
-                    this.hasQuantity = true
-                    Log.e("checkQ", "N")
-                    //todo 수량 있음
-                    //todo 어디 포지션인지 체크
+                    //todo 수량이 있음
+                    chooseItemInfo.hasQ = true
+                    Log.e("inputViewModel", "quantity is not null")
                     checkRecommendPosition(callBack)
+                    return@addOnSuccessListener
                 }
             }
     }
 
-    fun checkRecommendPosition(callBack: InputItemNameListActivity.RecommendCallBack) {
+    private fun checkRecommendPosition(callBack: InputItemNameListActivity.CallbackPosition) {
         MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
             .addOnSuccessListener {
                 var recommendPosition = ""
-                var quantity = 100000000
-                val positionList = it.children
+                var quantity: Int = 999999999
+                val itemListInPosition = it.children
 
-                for (i in positionList) {
-                    val position = i.key.toString()
-                    val itemList = i.children
+                for (itemList in itemListInPosition) {
+                    Log.e("input1", itemList.key.toString() + "=1")
 
-                    for (j in itemList) {
-                        val itemCode = j.key.toString()
-                        val itemQ = j.value.toString()
-                        if (itemCode == chooseItemCode) {
-                            if (itemQ.toInt() <= quantity) {
-                                quantity = itemQ.toInt()
-                                recommendPosition = position
+                    val _itemList = itemList.children
+
+                    for (i in _itemList) {
+                        if (i.key == chooseItemInfo.itemCode) {
+                            Log.e("input1", i.key.toString() + "=2")
+                            Log.e("input1", i.child("quantityInPosition").value.toString() + "=3")
+                            val q = i.child("quantityInPosition").value.toString().toInt()
+                            if (q <= quantity) {
+                                recommendPosition = itemList.key.toString()
+                                quantity = q
                             }
+                            break
                         }
                     }
                 }
                 callBack.callBack(recommendPosition)
+                chooseItemInfo.itemRecommendPosition = recommendPosition
+                return@addOnSuccessListener
             }
     }
 
-    interface DataCallBack {
-        fun callBack()
+    private fun makeItemCode(callBack: InputItemNameListActivity.CallbackPosition) {
+        val code1 = Random.nextLong(999999999999999999).toString()
+        val code2 = Random.nextLong(9999999999999).toString()
+        val rCode = code1 + code2
+        chooseItemInfo.itemCode = rCode
+        callBack.callBack("")
     }
 
-    interface PositionDataCallBack {
-        fun callBack(b: Boolean)
+    private fun insertDataAtQuantity() {
+        val item = chooseItemInfo
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(item.itemCategoryCode)
+            .child(item.itemCode).setValue(Quantity(item.itemQuantity, "0"))
     }
 
-    fun checkPositionHasSameData(callBack: PositionDataCallBack) {
-        //todo 여기서 체크
+    private fun insertDataAtPosition() {
+        val item = chooseItemInfo
         MainViewModel.database.child(DatabaseEnum.POSITION.standard)
-            .child(chooseItemPosition).child(chooseItemCode).get()
-            .addOnSuccessListener {
-                Log.e("insertData", it.toString())
+            .child(item.itemPosition)
+            .child(item.itemCode)
+            .setValue(Position(item.itemQuantity))
+    }
 
-                if (it.value == null || it.value.toString().isBlank()) {
-                    //todo 아이쳄 없음
-                    callBack.callBack(false)
-                    Log.e("checkPosition", "f")
-                } else {
-                    //todo 아이템 있음
-                    callBack.callBack(true)
-                    Log.e("checkPosition", "t")
-                }
+    private fun insertItemCode() {
+        val item = chooseItemInfo
+        MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard)
+            .child(item.itemCategoryCode)
+            .child(item.itemCode)
+            .setValue(ItemCode(item.itemName, item.itemSize))
+    }
+
+    private fun updateQuantityData(callBack: DataBaseCallBack) {
+        val item = chooseItemInfo
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(item.itemCategoryCode)
+            .child(item.itemCode).get()
+            .addOnSuccessListener {
+                val _item = it.getValue<Quantity>()!!
+                val itemQ = _item.quantity.toString().trim().toInt()
+                val inputQ = chooseItemInfo.itemQuantity.trim().toInt()
+                val sum = itemQ + inputQ
+                _item.quantity = sum.toString()
+                MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                    .child(item.itemCategoryCode)
+                    .child(item.itemCode)
+                    .setValue(_item)
+                callBack.callBack()
             }
     }
 
+    private fun updateDataPosition(callBack: DataBaseCallBack) {
+        val item = chooseItemInfo
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+            .child(item.itemPosition)
+            .child(item.itemCode)
+            .get()
+            .addOnSuccessListener {
+                val itemQ = it.value.toString().toInt()
+                val inputQ = item.itemQuantity.trim().toInt()
+                val sum = itemQ + inputQ
+
+                MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+                    .child(item.itemPosition)
+                    .child(item.itemCode)
+                    .setValue(sum.toString())
+                callBack.callBack()
+            }
+    }
+
+    fun checkItemInPositionBeforeInsert(callBack: DataBaseCallBack) {
+        val item = chooseItemInfo
+
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+            .child(item.itemPosition).child(item.itemCode).get()
+            .addOnSuccessListener {
+                if (it.value == null) {
+                    //todo 해당 자리 아이템 없음
+                    insertDataAtPosition()
+                    callBack.callBack()
+                } else {
+                    //todo 해당 자리 아이템 있음
+                    updateDataPosition(callBack)
+                }
+            }
+    }
     fun insertData(callBack: DataBaseCallBack) {
-        if (hasQuantity) {
-            updateQuantityData(object : DataCallBack {
-                override fun callBack() {
-                    Log.e("insertData", "1")
-                    //todo 해당 자리 아잍템 체크
-                    checkPositionHasSameData(object : PositionDataCallBack {
-                        override fun callBack(b: Boolean) {
-                            if (b) {
-                                Log.e("insertData", "2")
-                                //todo 해당 자리에 데이터 있음
-                                updatePositionData(object : DataCallBack {
-                                    override fun callBack() {
-                                        Log.e("insertData", "3")
-                                        callBack.callBack()
-                                    }
+        val data = chooseItemInfo
 
-                                })
-                            } else {
-                                //todo 해당 자리에 데이터 없음
-                                Log.e("insertData", "4")
-                                insertPositionData(object : DataCallBack {
-                                    override fun callBack() {
-                                        Log.e("insertData", "5")
-                                        callBack.callBack()
-                                    }
-
-                                })
-                            }
-                        }
-
-                    })
-                }
-
-            })
-            //todo 수량이 존재
-            //todo 해당 자리에 존재
-            //todo 해당 자리에 존재 하지 않음
+        if (data.hasCode) {
+            //todo 코드가 있음
+            if (data.hasQ) {
+                //todo 수량이 있음
+                //todo 해당 자리 아이템 있음 or 없음
+                checkItemInPositionBeforeInsert(callBack)
+                updateQuantityData(callBack)
+            } else {
+                //todo 수량이 없음
+                insertDataAtQuantity()
+                insertDataAtPosition()
+                callBack.callBack()
+            }
         } else {
-            //todo 수량이 존재 하지 않음
-            insertQuantityData(object : DataCallBack {
-                override fun callBack() {
-                    insertPositionData(object : DataCallBack {
-                        override fun callBack() {
-                            callBack.callBack()
-                        }
-                    })
-                }
-            })
+            //todo 코드가 없음 <첫 아이템>
+            insertItemCode()
+            insertDataAtQuantity()
+            insertDataAtPosition()
+            callBack.callBack()
         }
-    }
-
-    private fun insertQuantityData(dataCallBack: DataCallBack) {
-        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(chooseItemCategoryCode)
-            .child(chooseItemCode).setValue(Quantity(chooseItemQuantity, "0"))
-        dataCallBack.callBack()
-    }
-
-    private fun insertPositionData(dataCallBack: DataCallBack) {
-        Log.e("insertData", chooseItemPosition + "s")
-        Log.e("insertData", chooseItemCode + "s")
-        Log.e("insertData", chooseItemQuantity + "s")
-        MainViewModel.database.child(DatabaseEnum.POSITION.standard).child(chooseItemPosition)
-            .child(chooseItemCode).setValue(chooseItemQuantity)
-        dataCallBack.callBack()
-    }
-
-    private fun updateQuantityData(dataCallBack: DataCallBack) {
-        dataCallBack.callBack()
-    }
-
-    private fun updatePositionData(dataCallBack: DataCallBack) {
-        dataCallBack.callBack()
     }
 }

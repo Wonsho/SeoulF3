@@ -29,39 +29,41 @@ class SearchStockActivity : AppCompatActivity() {
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@SearchStockActivity)
         }
+
         dialog.show()
-        viewModel.getItemDataFromDatabase(object : DataBaseCallBack {
+        setContentView(binding.root)
+
+        viewModel.getDataFromDatabase(object : DataBaseCallBack {
             override fun callBack() {
-                setView()
-                setOnClick()
                 dialog.dismiss()
+                setListView()
+                setOnClick()
             }
         })
-        setContentView(binding.root)
+
     }
 
     fun setOnClick() {
-        binding.btnBack.setOnClickListener {
-            finish()
-        }
+        binding.btnBack.setOnClickListener { finish() }
         binding.lv.setOnItemClickListener { _, _, i, _ ->
+            //todo 해당 제고 파악
+            val itemName = viewModel.getItemNameByIndex(i)
             val sizeCode = viewModel.getItemSizeCode(i)
-            val itemCategoryCode = viewModel.getItemCategoryCode(i)
-            val itemName = viewModel.getItemName(i)
+            val categoryCode = viewModel.getItemCategoryCodeByIndex(i)
 
             val intent = Intent(this@SearchStockActivity, SearchStockSizeActivity::class.java)
             intent.putExtra("name", itemName)
             intent.putExtra("size", sizeCode)
-            intent.putExtra("categoryCode", itemCategoryCode)
+            intent.putExtra("category", categoryCode)
             startActivity(intent)
         }
     }
 
-    fun setView() {
+    fun setListView() {
         if (binding.lv.adapter == null) {
             binding.lv.adapter = SearchStockListAdapter()
         }
-        (binding.lv.adapter as SearchStockListAdapter).setData(viewModel.getOnlyItemNameList())
+        (binding.lv.adapter as SearchStockListAdapter).setData(viewModel.getItemNameList())
         (binding.lv.adapter as SearchStockListAdapter).notifyDataSetChanged()
     }
 }
