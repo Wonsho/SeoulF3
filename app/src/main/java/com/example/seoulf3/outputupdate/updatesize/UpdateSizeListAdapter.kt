@@ -1,4 +1,4 @@
-package com.example.seoulf3.searchstock.searchstocksize
+package com.example.seoulf3.outputupdate.updatesize
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.example.seoulf3.databinding.StockSizeListBinding
 
-class StockListSizeAdapter : BaseAdapter() {
-
+class UpdateSizeListAdapter : BaseAdapter() {
     private var itemSizeList = mutableListOf<String>()
     private var itemSizeMapQ = mutableMapOf<String, String>()
 
@@ -51,6 +50,5 @@ class StockListSizeAdapter : BaseAdapter() {
     fun setChildData(itemSizeMapQ: MutableMap<String, String>) {
         this.itemSizeMapQ = itemSizeMapQ
     }
-
 
 }

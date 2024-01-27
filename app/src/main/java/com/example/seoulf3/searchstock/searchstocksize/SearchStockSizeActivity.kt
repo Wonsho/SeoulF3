@@ -34,6 +34,7 @@ class SearchStockSizeActivity : AppCompatActivity() {
         val category = intent.getStringExtra("category")
         val itemName = intent.getStringExtra("name")
 
+        binding.tvItemName.text = itemName.toString()
         viewModel.setSizeCode(sizeCode.toString())
         viewModel.setItemName(itemName.toString())
         viewModel.setItemCategoryCode(category.toString())

@@ -1,4 +1,4 @@
-package com.example.seoulf3.searchstock.searchstocksize
+package com.example.seoulf3.outputupdate.updatesize
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -9,7 +9,8 @@ import com.example.seoulf3.data.ItemCode
 import com.example.seoulf3.data.Quantity
 import com.google.firebase.database.ktx.getValue
 
-class SearchStockSizeViewModel : ViewModel() {
+class UpdateSizeViewModel : ViewModel() {
+
     private var itemCategoryCode: String = ""
     private var itemName: String = ""
     private var itemSizeCode: String = ""
@@ -22,6 +23,26 @@ class SearchStockSizeViewModel : ViewModel() {
     private var itemCodeMapQ = mutableMapOf<String, String>()
     private var itemSizeMapQ = mutableMapOf<String, String>()
 
+
+    fun getItemCode(size: String): String {
+        return sizeMapItemCode[size].toString()
+    }
+
+    fun getItemName() = this.itemName
+
+    fun getItemChooseItemSize(i : Int): String {
+        return itemSizeList[i]
+    }
+
+    fun getMaxQByIndex(i : Int): String {
+        val max =  itemSizeMapQ[getItemChooseItemSize(i)]
+
+        return if (max.isNullOrEmpty() || max == "null" || max == "0") {
+            (-1).toString()
+        } else {
+            max
+        }
+    }
 
     fun getItemSizeList() = this.itemSizeList
 
@@ -37,6 +58,8 @@ class SearchStockSizeViewModel : ViewModel() {
     fun setItemCategoryCode(categoryCode: String) {
         this.itemCategoryCode = categoryCode
     }
+
+    fun getItemCategoryCode() = this.itemCategoryCode
 
     fun getDataFromDatabase(callBack: DataBaseCallBack) {
         sizeMapItemCode = mutableMapOf()
@@ -124,4 +147,9 @@ class SearchStockSizeViewModel : ViewModel() {
         }
         callBack.callBack()
     }
+
+    fun insertAllData() {
+
+    }
+
 }

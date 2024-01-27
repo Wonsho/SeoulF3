@@ -11,7 +11,7 @@ import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityOutPutWorkBinding
 import com.example.seoulf3.outputwork.outputnondata.OutPutWorkNonDataActivity
 
-//todo 출고 요청분이 있을 경우 실행
+//todo 출고 요청분이 있을 경우 실행 출고 작업 리스트 보여주기
 class OutPutWorkActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
     private lateinit var viewModel: OutPutWorkViewModel

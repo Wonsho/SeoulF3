@@ -1,15 +1,14 @@
 package com.example.seoulf3.outputwork.outputnondata
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.LoadingDialog
-import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityOutPutWorkNonDataBinding
 
+
+//todo 출고 요청분이 없을경우 실행
 class OutPutWorkNonDataActivity : AppCompatActivity() {
     private lateinit var viewModel: OutPutWorkNonDataViewModel
     private lateinit var dialog: android.app.AlertDialog

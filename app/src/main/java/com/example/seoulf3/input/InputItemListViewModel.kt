@@ -14,6 +14,7 @@ import com.google.firebase.database.ktx.getValue
 import kotlin.random.Random
 
 class InputItemListViewModel : ViewModel() {
+
     data class ChooseItemInfo(
         var itemName: String = "",
         var itemCategoryCode: String = "",
@@ -99,6 +100,7 @@ class InputItemListViewModel : ViewModel() {
                 //todo 아이템 코드가 없음 -> 생성
                 chooseItemInfo.hasCode = false
                 makeItemCode(callBack)
+                insertItemCode()
                 return@addOnSuccessListener
             }
     }
@@ -133,14 +135,11 @@ class InputItemListViewModel : ViewModel() {
                 val itemListInPosition = it.children
 
                 for (itemList in itemListInPosition) {
-                    Log.e("input1", itemList.key.toString() + "=1")
 
                     val _itemList = itemList.children
 
                     for (i in _itemList) {
                         if (i.key == chooseItemInfo.itemCode) {
-                            Log.e("input1", i.key.toString() + "=2")
-                            Log.e("input1", i.child("quantityInPosition").value.toString() + "=3")
                             val q = i.child("quantityInPosition").value.toString().toInt()
                             if (q <= quantity) {
                                 recommendPosition = itemList.key.toString()
@@ -209,7 +208,7 @@ class InputItemListViewModel : ViewModel() {
         val item = chooseItemInfo
         MainViewModel.database.child(DatabaseEnum.POSITION.standard)
             .child(item.itemPosition)
-            .child(item.itemCode)
+            .child(item.itemCode).child("quantityInPosition")
             .get()
             .addOnSuccessListener {
                 val itemQ = it.value.toString().toInt()
@@ -218,7 +217,7 @@ class InputItemListViewModel : ViewModel() {
 
                 MainViewModel.database.child(DatabaseEnum.POSITION.standard)
                     .child(item.itemPosition)
-                    .child(item.itemCode)
+                    .child(item.itemCode).child("quantityInPosition")
                     .setValue(sum.toString())
                 callBack.callBack()
             }
@@ -240,6 +239,7 @@ class InputItemListViewModel : ViewModel() {
                 }
             }
     }
+
     fun insertData(callBack: DataBaseCallBack) {
         val data = chooseItemInfo
 
@@ -258,7 +258,6 @@ class InputItemListViewModel : ViewModel() {
             }
         } else {
             //todo 코드가 없음 <첫 아이템>
-            insertItemCode()
             insertDataAtQuantity()
             insertDataAtPosition()
             callBack.callBack()

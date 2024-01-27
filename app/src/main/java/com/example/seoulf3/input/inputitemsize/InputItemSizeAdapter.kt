@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import com.example.seoulf3.databinding.InputSizeListBinding
+import com.example.seoulf3.databinding.InputsizelistBinding
 
 class InputItemSizeAdapter : BaseAdapter() {
     private var sizeList = mutableListOf<String>()
@@ -16,9 +16,9 @@ class InputItemSizeAdapter : BaseAdapter() {
 
     override fun getView(p0: Int, p1: View?, p2: ViewGroup?): View {
         val binding = if (p1 == null) {
-            InputSizeListBinding.inflate(LayoutInflater.from(p2!!.context))
+            InputsizelistBinding.inflate(LayoutInflater.from(p2!!.context))
         } else {
-            InputSizeListBinding.bind(p1)
+            InputsizelistBinding.bind(p1)
         }
         val itemSize = sizeList[p0]
         binding.tvItemSize.text = itemSize
