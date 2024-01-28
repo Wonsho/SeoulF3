@@ -1,6 +1,7 @@
 package com.example.seoulf3.outputupdate
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.seoulf3.DataBaseCallBack
@@ -10,6 +11,7 @@ import com.example.seoulf3.OrderKoreanFirst
 import com.example.seoulf3.data.ItemCode
 import com.example.seoulf3.data.ItemName
 import com.example.seoulf3.data.OutPutItem
+import com.example.seoulf3.data.Quantity
 import com.google.firebase.database.ktx.getValue
 import java.time.LocalDateTime
 
@@ -22,7 +24,7 @@ class OutPutUpdateViewModel() : ViewModel() {
     private var itemNameMapItemSizeCode = mutableMapOf<String, String>()
     private var childMap = mutableMapOf<String, MutableList<OutPutUpdateActivity.ChildData>>()
 
-    fun getSizeCodeByIndex(i: Int):String {
+    fun getSizeCodeByIndex(i: Int): String {
         val itemName = getItemNameByIndex(i)
 
         return itemNameMapItemSizeCode[itemName].toString()
@@ -32,10 +34,11 @@ class OutPutUpdateViewModel() : ViewModel() {
         return itemNameStringList[i].toString()
     }
 
-    fun getItemCategoryCodeByIndex(i : Int): String {
+    fun getItemCategoryCodeByIndex(i: Int): String {
         val itemName = getItemNameByIndex(i).toString()
         return itemNameMapCategoryCode[itemName].toString()
     }
+
     fun getParentsData() = this.itemNameStringList
 
     fun getChildData() = this.childMap
@@ -63,9 +66,9 @@ class OutPutUpdateViewModel() : ViewModel() {
         var list = childMap[data.itemName]
 
         if (list.isNullOrEmpty()) {
-           list = mutableListOf()
-           list.add(data)
-           this.childMap[data.itemName!!] = list
+            list = mutableListOf()
+            list.add(data)
+            this.childMap[data.itemName!!] = list
         } else {
             //todo check same Item
             for ((n, i) in list.withIndex()) {
@@ -82,8 +85,8 @@ class OutPutUpdateViewModel() : ViewModel() {
 
     fun deleteData(p1: Int, p2: Int) {
         val itemName = getItemNameByIndex(p1)
-        val list = childMap[itemName]!!
-            list.removeAt(p2)
+        var list = childMap[itemName]!!
+        list.removeAt(p2)
         childMap[itemName] = list
     }
 
@@ -107,21 +110,46 @@ class OutPutUpdateViewModel() : ViewModel() {
         }
         //todo 저장 outputInfo -> Date -> itemCode -> (itemName, itemSize, ReleaseQ)
         val date = System.currentTimeMillis().toString()
-        MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(date).setValue(itemCodeMap)
+        MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(date)
+            .setValue(itemCodeMap)
             .addOnSuccessListener {
-//                updateQuantity(itemCodeMap)
+                updateQuantity(itemCodeMap)
             }
-            //todo 수량 수정 <중요작업!!>
+        //todo 수량 수정 <중요작업!!>
     }
 
-//    fun updateQuantity(childData: MutableMap<String,OutPutItem>) {
-//        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).get()
-//            .addOnSuccessListener {
-//                val list = it.children
-//
-//                for (i in list) {
-//                    i.value
-//                }
-//            }
-//    }
+    private fun updateQuantity(childData: MutableMap<String, OutPutItem>) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).get()
+            .addOnSuccessListener {
+                val list = it.children
+                //todo list key
+                for (data in list) {
+                    val categoryKey = data.key.toString()
+                    Log.e("QuantityData", categoryKey)
+
+                    val itemList = data.children
+                    for (i in itemList) {
+                        val itemQData = i.getValue<Quantity>()!!
+                        val key = i.key.toString()
+                        var index = 0
+
+                        for (item in childData) {
+                            if (item.key == key) {
+                                //todo 해당 아이템
+                                val oriN = itemQData.releaseQuantity!!.toInt()
+                                val inputQ = item.value.itemReleaseQ!!.toInt()
+                                val result = oriN + inputQ
+
+                                itemQData.releaseQuantity = result.toString()
+                                MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(categoryKey).child(key).setValue(itemQData)
+                                break
+                            }
+                        }
+                        //todo 수량 데이터 가짐
+                        Log.e("QuantityData", i.key.toString())
+                        Log.e("QuantityData", i.value.toString())
+                    }
+                }
+            }
+    }
 }

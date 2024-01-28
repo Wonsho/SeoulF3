@@ -22,4 +22,7 @@ class OutPutWorkViewModel : ViewModel() {
                 callBack.callBack()
             }
     }
+    fun deleteData(i: Int) {
+
+    }
 }

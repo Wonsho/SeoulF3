@@ -2,10 +2,12 @@ package com.example.seoulf3.outputupdate
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
@@ -41,6 +43,7 @@ class OutPutUpdateActivity : AppCompatActivity() {
         dialog.show()
         setContentView(binding.root)
         viewModel.getDataFromDatabase(object : DataBaseCallBack {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun callBack() {
                 dialog.dismiss()
                 setListview()
@@ -49,6 +52,7 @@ class OutPutUpdateActivity : AppCompatActivity() {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun checkData() {
         if (viewModel.checkData) {
             val dialog = AlertDialog.Builder(this@OutPutUpdateActivity)
@@ -69,11 +73,13 @@ class OutPutUpdateActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBackPressed() {
         checkData()
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setOnClick() {
         binding.btnSave.setOnClickListener {
             viewModel.insertAllData()

@@ -6,4 +6,59 @@
     android:layout_height="match_parent"
     tools:context=".outputwork.OutPutWorkActivity">
 
+
+
+    <ImageView
+        android:id="@+id/btn_back"
+        android:paddingLeft="10dp"
+        app:layout_constraintBottom_toTopOf="@id/line"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/baseline_arrow_back_24"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"/>
+
+    <TextView
+        android:id="@+id/t"
+        android:padding="5dp"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/line"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="출고 작업 리스트"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/line"
+        app:layout_constraintTop_toBottomOf="@id/t"
+        android:background="@color/black"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+
+    <TextView
+        android:textSize="20sp"
+        android:id="@+id/tt"
+        android:layout_marginTop="5dp"
+        android:gravity="center"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        android:text="저장된 출고 작업 목록입니다.\n원하는 작업을 선택해 출고를 진행하세요."
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+
+
+    <ListView
+        android:layout_marginTop="5dp"
+        android:id="@+id/lv"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tt"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
