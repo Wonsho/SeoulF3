@@ -6,6 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".outputwork.work.workoutput.WorkOutActivity">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/lay"
+        android:elevation="2dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:textColor="@color/black"
+            android:textSize="30dp"
+            android:gravity="center"
+            android:text="로딩중...."
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <ImageView
         android:id="@+id/btn_back"
@@ -37,96 +60,72 @@
         android:background="@color/black"
         app:layout_constraintTop_toBottomOf="@id/t" />
 
-    <LinearLayout
+    <ProgressBar
+        android:id="@+id/pro"
+        app:layout_constraintBottom_toTopOf="@id/btn_next"
+        app:layout_constraintTop_toBottomOf="@id/line"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/line">
+        android:layout_height="0dp"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/pro"
+        app:layout_constraintTop_toBottomOf="@id/line"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tv_itemName"
+            android:id="@+id/tv_times"
+            android:textSize="40dp"
+            android:textColor="@color/black"
+            android:text="7"
             android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="ItemName + size"
-            android:textSize="25sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="18dp"
-            android:gravity="center"
-            android:text="품목명"
-            android:textSize="18sp" />
-
-        <TextView
-            android:id="@+id/tv_quantity"
-            android:textStyle="bold"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="80"
-            android:textSize="25sp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="수량"
-            android:textSize="18sp" />
-
-        <TextView
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/pro"
+            app:layout_constraintTop_toBottomOf="@id/line"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:lineSpacingExtra="5dp"
-            android:text="해당 위치의 개수가 맞으면 다음 버튼을 눌러 다음 작업을 진행하세요\n해당 자리에 해당 수량이 맞지 않으면 재고 이상 버튼을 눌러 다음 작업을 진행해주세요."
-            android:textSize="22sp" />
+            android:layout_height="wrap_content"/>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+        <TextView
+            android:textSize="40dp"
+            android:textColor="@color/black"
+            android:text="/"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/pro"
+            app:layout_constraintTop_toBottomOf="@id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
 
-            <Button
-                android:layout_marginBottom="15dp"
-                android:textColor="#FFCA00"
-                android:textSize="20sp"
-                android:backgroundTint="#BFBD0000"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/guideline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" 재고 수량 이상 " />
-
-
-            <Button
-                android:textSize="20sp"
-
-                android:layout_marginTop="35dp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/guideline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=" 다음 작업 진행 > " />
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/guideline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                app:layout_constraintGuide_percent="0.5" />
-
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+        <TextView
+            android:id="@+id/tv_size"
+            android:textSize="40dp"
+            android:textColor="@color/black"
+            android:text="80"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/pro"
+            app:layout_constraintTop_toBottomOf="@id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
-
+    <Button
+        android:paddingBottom="5dp"
+        android:paddingTop="5dp"
+        android:layout_marginBottom="15dp"
+        android:id="@+id/btn_next"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="30dp"
+        android:text="다음 작업 넘어가기 >"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,81 +10,113 @@ import com.google.firebase.database.ktx.getValue
 
 //todo 해당 리스트 아이템 가져옴
 class WorkOutViewModel : ViewModel() {
-    private var cN = "workOutViewModel1"
-    private var index: Int = 0
-    private var positionList = mutableListOf<String>()
-    private var positionIndex = 0
-    private var workItem = WorkItem(0,0)
 
-    private var date: String = ""
+    val LOG = "WorkOutViewmodel!"
 
-    data class WorkItem(var outPutItemQ: Int, var workedOutputItemQ: Int)
+    data class DataWithItemCode(var itemCode: String, var data: OutPutItem)
+    data class DataWorkCount(var times: Int, var size: Int)
+    data class PositionCount(var times: Int, var size: Int)
 
-    data class ItemCodeWithItemList(var itemCode: String, var item: OutPutItem)
+    private var date = ""
+    private var dataCount = DataWorkCount(0, 0)
+    private var positionCount = PositionCount(0, 0)
 
-    private var itemList = mutableListOf<ItemCodeWithItemList>()
+    private var itemCodeMapPositionList = mutableMapOf<String, MutableList<String>>()
+    private var itemCodeList = mutableListOf<String>()
 
+    private var dataList = mutableListOf<DataWithItemCode>()
+
+    fun getDataCount() = this.dataCount
+
+
+    private fun getNowItemCode(): String =
+        dataList.get(dataCount.times).itemCode
+
+    fun setPositionData() {
+        val nowItemCode = getNowItemCode()
+        val positionList = itemCodeMapPositionList[nowItemCode]
+        positionCount.size = positionList!!.size
+        positionCount.times = 0
+    }
+
+    fun getNowPosition(): String {
+        val nowItemCode = getNowItemCode()
+        val positionList = itemCodeMapPositionList[nowItemCode]
+        val nowPosition = positionList?.get(positionCount.times)
+        return nowPosition.toString()
+    }
+
+    fun getDataByCount(count: Int): DataWithItemCode {
+        return this.dataList[count]
+    }
+
+    fun setDataCount(dataCount: DataWorkCount) {
+        this.dataCount = dataCount
+    }
+
+    fun getDate() = this.date
 
     fun setDate(date: String) {
         this.date = date
     }
 
-    fun getDate() = this.date
-
     fun getDataFromDatabase(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.INPUTINFO.toString()).child(date).get()
+        MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(this.date).get()
             .addOnSuccessListener {
                 val list = it.children
 
                 for (i in list) {
                     val item = i.getValue<OutPutItem>()!!
                     val itemCode = i.key.toString()
-                    itemList.add(ItemCodeWithItemList(itemCode, item))
+                    val data = DataWithItemCode(itemCode, item)
+                    dataList.add(data)
+                    if (!itemCodeList.contains(itemCode)) {
+                        Log.e(LOG, "addedItemCode $itemCode")
+                        itemCodeList.add(itemCode)
+                    }
                 }
+                dataCount.size = dataList.size
+                getItemPosition(callBack)
             }
-        callBack.callBack()
     }
 
-    fun getItemPosition(callBack: DataBaseCallBack): String {
-        this.positionList = mutableListOf()
+    private fun getItemPosition(callBack: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
+            .addOnSuccessListener {
+                val positionItem = it.children
 
-        if (index == itemList.size) {
-            return "F"
-        } else {
-            val itemL = itemList[index]
-            val itemCode = itemL.itemCode
-            val item = itemL.item
+                for (i in positionItem) {
+                    val position = i.key.toString()
+                    Log.e(LOG, position + "this position")
 
-            MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
-                .addOnSuccessListener {
-                    val positionList = it.children
+                    val list = i.children
 
-                    for (i in positionList) {
-                        Log.e(cN, i.key.toString() + "position")
-                        val position = i.key.toString()
-                        val itemList = i.children
+                    for (data in list) {
+                        //todo item In position
+                        Log.e(LOG, data.key.toString() + "this ItemCode")
+                        val thisItemCode = data.key.toString()
 
-                        for(_item in itemList) {
-                            val _itemCode = _item.key.toString()
-                            Log.e(cN, _itemCode + "ItemCode")
-                            if (_itemCode == itemCode) {
-                                val thisPQ = _item.child("quantityInPosition").value.toString()
-                                Log.e(cN, thisPQ + "positionQuantity")
-                                val itemQ = item.itemReleaseQ.toString()
+                        if (itemCodeList.contains(thisItemCode)) {
+                            Log.e(
+                                LOG,
+                                "this Item Position is $position, this Item Code is $thisItemCode"
+                            )
+                            val positionList = itemCodeMapPositionList[thisItemCode]
 
-                                this.positionList.add(position)
+                            if (positionList.isNullOrEmpty()) {
+                                //todo 첫 아이템
+                                val newList = mutableListOf<String>()
+                                newList.add(position)
+                                itemCodeMapPositionList[thisItemCode] = newList
+                            } else {
+                                //todo 첫 아이템 아님
+                                positionList.add(position)
+                                itemCodeMapPositionList[thisItemCode] = positionList
                             }
                         }
                     }
                 }
-        }
-    }
-
-    fun onClickNext() {
-        //todo 다음 작업 넘어가기
-    }
-
-    fun onClickError() {
-        //todo 데이터 베이스 에러 입력하기
+                callBack.callBack()
+            }
     }
 }

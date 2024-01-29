@@ -1,7 +1,9 @@
 package com.example.seoulf3.outputwork.work
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
@@ -9,6 +11,7 @@ import com.example.seoulf3.LoadingDialog
 import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityOutPutWorkBinding
 import com.example.seoulf3.databinding.ActivityWorkBinding
+import com.example.seoulf3.outputwork.work.workoutput.WorkOutActivity
 
 
 //todo 항목 보여주기
@@ -19,7 +22,6 @@ class WorkActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         if (!::dialog.isInitialized) {
             binding = ActivityWorkBinding.inflate(layoutInflater)
         }
@@ -51,7 +53,11 @@ class WorkActivity : AppCompatActivity() {
         binding.btnBack.setOnClickListener { finish() }
         binding.btnSave.setOnClickListener {
             //todo 출고 작업 시작
-
+            val date = intent.getStringExtra("date").toString()
+            val intent = Intent(this@WorkActivity, WorkOutActivity::class.java)
+            intent.putExtra("date", date)
+            startActivity(intent)
+            Toast.makeText(applicationContext, "Click", Toast.LENGTH_SHORT).show()
         }
         binding.lv.setOnGroupClickListener { _, _, _, _ ->
             true
