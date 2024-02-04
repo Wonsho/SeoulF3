@@ -25,7 +25,7 @@ class OutPutUpdateActivity : AppCompatActivity() {
     interface CallBackDelete {
         fun callBack(p1: Int, p2: Int)
     }
-    data class ChildData(var itemCode: String? = "", var itemName: String? = "", var itemSize: String? = "", var itemQ: String?  = "")
+    data class ChildData(var itemCode: String? = "", var itemName: String? = "", var itemSize: String? = "", var itemQ: String?  = "", var categoryCode: String = "")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -91,9 +91,9 @@ class OutPutUpdateActivity : AppCompatActivity() {
         }
         binding.lv.setOnGroupClickListener { _, _, i, _ ->
             val itemName = viewModel.getItemNameByIndex(i)
-
             val itemCategoryCode = viewModel.getItemCategoryCodeByIndex(i)
             val itemSizeCode = viewModel.getSizeCodeByIndex(i)
+            Toast.makeText(applicationContext, itemCategoryCode, Toast.LENGTH_SHORT).show()
 
             val intent = Intent(this@OutPutUpdateActivity, OutPutUpdateSizeActivity::class.java )
             intent.putExtra("name", itemName)
@@ -137,8 +137,10 @@ class OutPutUpdateActivity : AppCompatActivity() {
             val itemSize = data!!.getStringExtra("size").toString()
             val itemQ = data!!.getStringExtra("quantity").toString()
             val itemCode = data!!.getStringExtra("itemCode").toString()
+            val category = data!!.getStringExtra("category").toString()
 
-            val data = ChildData(itemCode, itemName, itemSize, itemQ)
+            Toast.makeText(applicationContext, category, Toast.LENGTH_SHORT).show()
+            val data = ChildData(itemCode, itemName, itemSize, itemQ, category)
             viewModel.insertDataInModel(data)
             setListview()
         }

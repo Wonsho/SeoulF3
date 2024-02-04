@@ -103,8 +103,9 @@ class OutPutUpdateViewModel() : ViewModel() {
                 val itemCode = j.itemCode.toString()
                 val itemName = j.itemName.toString()
                 val itemSize = j.itemSize.toString()
+                val categoryCode = j.categoryCode.toString()
                 val q = j.itemQ.toString()
-                val item = OutPutItem(itemName, itemSize, q)
+                val item = OutPutItem(itemName, itemSize, q, categoryCode)
                 itemCodeMap[itemCode] = item
             }
         }

@@ -37,76 +37,24 @@ class WorkOutActivity : AppCompatActivity() {
         }
 
         viewModel.setDate(intent.getStringExtra("date").toString())
+        setContentView(binding.root)
 
-        viewModel.getDataFromDatabase(object : DataBaseCallBack {
+        viewModel.getOutputData(object : DataBaseCallBack {
             override fun callBack() {
-
                 binding.lay.visibility = View.GONE
-                //todo Scan
-
-                setView()
-                setOnClick()
-
-                val intent = Intent(this@WorkOutActivity, OutWorkScanActivity::class.java)
-                val itemData = viewModel.getDataByCount(viewModel.getDataCount().times)
-                viewModel.setPositionData()
-                val position = viewModel.getNowPosition()
-                intent.putExtra("position", position)
-                startActivityForResult(intent, 7)
+                binding.tvSize.text = viewModel.getItemSize()
+                binding.tvTimes.text = viewModel.getItemNowCount()
+                startScan()
             }
         })
-        setContentView(binding.root)
     }
 
-    fun showDialog() {
-        AlertDialog.Builder(this@WorkOutActivity)
-            .setTitle("알림")
-            .setMessage("작업을 중단하고 뒤로 가시겠습니까?")
-            .setPositiveButton("예", object : DialogInterface.OnClickListener {
-                override fun onClick(p0: DialogInterface?, p1: Int) {
-                    finish()
-                }
-            })
-            .setNegativeButton("아니요", object : DialogInterface.OnClickListener {
-                override fun onClick(p0: DialogInterface?, p1: Int) {
-                }
-            })
-            .create().show()
-    }
-
-    fun setOnClick() {
-        binding.btnBack.setOnClickListener {
-            showDialog()
-        }
-
-        binding.btnNext.setOnClickListener {
-            //todo 다음 작업
-        }
-    }
-
-    fun setView() {
-        val count = viewModel.getDataCount()
-
-        binding.tvSize.text = count.size.toString()
-        binding.tvTimes.text = count.times.toString()
-
-    }
-
-    override fun onBackPressed() {
-        showDialog()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == RESULT_OK) {
-            if (requestCode == 7) {
-                val position = data!!.getStringExtra("position").toString()
-                val intent = Intent(this@WorkOutActivity, OutputCheckActivity::class.java)
-                startActivityForResult(intent, 8)
-            } else {
+    fun startScan() {
+        viewModel.getDataAtPosition(object : DataBaseCallBack {
+            override fun callBack() {
 
             }
-        }
+
+        })
     }
 }

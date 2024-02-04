@@ -83,6 +83,7 @@ class OutPutUpdateSizeActivity : AppCompatActivity() {
                 intent.putExtra("name", itemName)
                 intent.putExtra("maxQ", maxQ)
                 intent.putExtra("size", chooseItemSize)
+
                 startActivityForResult(intent, 8)
             }
         }

@@ -2,121 +2,119 @@ package com.example.seoulf3.outputwork.work.workoutput
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.recyclerview.widget.AsyncListUtil.DataCallback
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.data.OutPutItem
+import com.google.firebase.database.core.view.DataEvent
 import com.google.firebase.database.ktx.getValue
 
 //todo 해당 리스트 아이템 가져옴
 class WorkOutViewModel : ViewModel() {
 
-    val LOG = "WorkOutViewmodel!"
+    private var TAG = "WorkOutViewmodel!!"
 
-    data class DataWithItemCode(var itemCode: String, var data: OutPutItem)
-    data class DataWorkCount(var times: Int, var size: Int)
-    data class PositionCount(var times: Int, var size: Int)
+    data class DataWithItemCode(
+        var itemCode: String,
+        var itemName: String,
+        var itemReleaseQ: String,
+        var itemSize: String,
+        var itemCategoryCode: String
+    )
 
-    private var date = ""
-    private var dataCount = DataWorkCount(0, 0)
-    private var positionCount = PositionCount(0, 0)
+    private var date: String = ""
 
-    private var itemCodeMapPositionList = mutableMapOf<String, MutableList<String>>()
-    private var itemCodeList = mutableListOf<String>()
+    private object ItemCount {
+        var maxCount = 0
+        var nowCount = 0
+    }
+
+    private object SelectedItem {
+        data class PositionData(var position: String, var quantity: Int)
+
+        var itemCode: String = ""
+        var itemName: String = ""
+        var itemSize: String = ""
+        var itemCategoryCode: String = ""
+        var itemPositionList = mutableListOf<PositionData>()
+        var positionCount = 0
+        var positionMaxPosition = 0
+    }
 
     private var dataList = mutableListOf<DataWithItemCode>()
-
-    fun getDataCount() = this.dataCount
-
-
-    private fun getNowItemCode(): String =
-        dataList.get(dataCount.times).itemCode
-
-    fun setPositionData() {
-        val nowItemCode = getNowItemCode()
-        val positionList = itemCodeMapPositionList[nowItemCode]
-        positionCount.size = positionList!!.size
-        positionCount.times = 0
-    }
-
-    fun getNowPosition(): String {
-        val nowItemCode = getNowItemCode()
-        val positionList = itemCodeMapPositionList[nowItemCode]
-        val nowPosition = positionList?.get(positionCount.times)
-        return nowPosition.toString()
-    }
-
-    fun getDataByCount(count: Int): DataWithItemCode {
-        return this.dataList[count]
-    }
-
-    fun setDataCount(dataCount: DataWorkCount) {
-        this.dataCount = dataCount
-    }
-
-    fun getDate() = this.date
-
     fun setDate(date: String) {
         this.date = date
     }
 
-    fun getDataFromDatabase(callBack: DataBaseCallBack) {
+    fun getItemSize(): String = ItemCount.maxCount.toString()
+    fun getItemNowCount(): String = (ItemCount.nowCount + 1).toString()
+
+    fun getOutputData(callBack: DataBaseCallBack) {
         MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(this.date).get()
             .addOnSuccessListener {
-                val list = it.children
+                val dataList = it.children
+                val mutableList = mutableListOf<DataWithItemCode>()
 
-                for (i in list) {
-                    val item = i.getValue<OutPutItem>()!!
-                    val itemCode = i.key.toString()
-                    val data = DataWithItemCode(itemCode, item)
-                    dataList.add(data)
-                    if (!itemCodeList.contains(itemCode)) {
-                        Log.e(LOG, "addedItemCode $itemCode")
-                        itemCodeList.add(itemCode)
-                    }
+                for (data in dataList) {
+                    val itemKey = data.key.toString()
+                    val data = data.getValue<OutPutItem>()!!
+                    Log.e(
+                        TAG,
+                        "$itemKey, ${data.itemName}, ${data.itemReleaseQ}, ${data.itemSize.toString()}"
+                    )
+                    mutableList.add(
+                        DataWithItemCode(
+                            itemKey,
+                            data.itemName.toString(),
+                            data.itemReleaseQ.toString(),
+                            data.itemSize.toString(),
+                            data.categoryCode.toString()
+                        )
+                    )
                 }
-                dataCount.size = dataList.size
-                getItemPosition(callBack)
-            }
-    }
 
-    private fun getItemPosition(callBack: DataBaseCallBack) {
-        MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
-            .addOnSuccessListener {
-                val positionItem = it.children
-
-                for (i in positionItem) {
-                    val position = i.key.toString()
-                    Log.e(LOG, position + "this position")
-
-                    val list = i.children
-
-                    for (data in list) {
-                        //todo item In position
-                        Log.e(LOG, data.key.toString() + "this ItemCode")
-                        val thisItemCode = data.key.toString()
-
-                        if (itemCodeList.contains(thisItemCode)) {
-                            Log.e(
-                                LOG,
-                                "this Item Position is $position, this Item Code is $thisItemCode"
-                            )
-                            val positionList = itemCodeMapPositionList[thisItemCode]
-
-                            if (positionList.isNullOrEmpty()) {
-                                //todo 첫 아이템
-                                val newList = mutableListOf<String>()
-                                newList.add(position)
-                                itemCodeMapPositionList[thisItemCode] = newList
-                            } else {
-                                //todo 첫 아이템 아님
-                                positionList.add(position)
-                                itemCodeMapPositionList[thisItemCode] = positionList
-                            }
-                        }
-                    }
-                }
+                this.dataList = mutableList
+                ItemCount.maxCount = this.dataList.size
                 callBack.callBack()
             }
     }
+
+    fun getDataAtPosition(callback: DataBaseCallBack) {
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
+            .addOnSuccessListener {
+                val nowCount = ItemCount.nowCount
+                val nowItem = dataList.get(nowCount)
+
+                SelectedItem.itemCode = nowItem.itemCode
+                SelectedItem.itemName = nowItem.itemName
+                SelectedItem.itemSize = nowItem.itemSize
+                SelectedItem.itemCategoryCode = nowItem.itemCategoryCode
+                SelectedItem.itemPositionList = mutableListOf()
+                SelectedItem.positionCount = 0
+                SelectedItem.positionMaxPosition = 0
+
+                val positionData = it.children
+
+                for (data in positionData) {
+                    val position = data.key.toString()
+                    Log.e(TAG, "position = $position")
+                    val dataInPosition = data.children
+
+                    for (item in dataInPosition) {
+                        val itemCode = item.key.toString()
+                        val q = item.child("quantityInPosition").value.toString()
+                        if (itemCode == nowItem.itemCode) {
+                            SelectedItem.itemPositionList.add(SelectedItem.PositionData(position,q.toInt()))
+                        }
+                        Log.e(TAG, "itemCode = $itemCode")
+                        Log.e(TAG, "itemQ = $q")
+                    }
+                }
+                SelectedItem.positionCount = 0
+                SelectedItem.positionMaxPosition = SelectedItem.itemPositionList.size
+                callback.callBack()
+            }
+    }
+
 }
