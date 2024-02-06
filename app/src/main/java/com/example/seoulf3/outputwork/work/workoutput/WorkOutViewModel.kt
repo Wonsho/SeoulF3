@@ -33,6 +33,7 @@ class WorkOutViewModel : ViewModel() {
     private object SelectedItem {
         data class PositionData(var position: String, var quantity: Int)
 
+        var releaseQ = 0
         var itemCode: String = ""
         var itemName: String = ""
         var itemSize: String = ""
@@ -40,6 +41,35 @@ class WorkOutViewModel : ViewModel() {
         var itemPositionList = mutableListOf<PositionData>()
         var positionCount = 0
         var positionMaxPosition = 0
+    }
+
+    fun getReleaseQ(): String {
+        return SelectedItem.releaseQ.toString()
+    }
+
+    fun getSelectedItemName(): String {
+        return SelectedItem.itemName
+    }
+
+    fun getSelectedItemSize(): String {
+        return SelectedItem.itemSize
+    }
+
+    fun getSelectedItemPosition(): String {
+        return getNowItemPosition()
+    }
+
+    fun getNowItemPositionQuantity(): String {
+        val nowCount = SelectedItem.positionCount
+        val positionData = SelectedItem.itemPositionList[nowCount]
+        return positionData.quantity.toString()
+    }
+
+
+    fun getNowItemPosition(): String {
+        val nowCount = SelectedItem.positionCount
+        val positionData = SelectedItem.itemPositionList[nowCount]
+        return positionData.position
     }
 
     private var dataList = mutableListOf<DataWithItemCode>()
@@ -73,7 +103,6 @@ class WorkOutViewModel : ViewModel() {
                         )
                     )
                 }
-
                 this.dataList = mutableList
                 ItemCount.maxCount = this.dataList.size
                 callBack.callBack()
@@ -86,6 +115,7 @@ class WorkOutViewModel : ViewModel() {
                 val nowCount = ItemCount.nowCount
                 val nowItem = dataList.get(nowCount)
 
+                SelectedItem.releaseQ = nowItem.itemReleaseQ.toInt()
                 SelectedItem.itemCode = nowItem.itemCode
                 SelectedItem.itemName = nowItem.itemName
                 SelectedItem.itemSize = nowItem.itemSize
@@ -105,14 +135,27 @@ class WorkOutViewModel : ViewModel() {
                         val itemCode = item.key.toString()
                         val q = item.child("quantityInPosition").value.toString()
                         if (itemCode == nowItem.itemCode) {
-                            SelectedItem.itemPositionList.add(SelectedItem.PositionData(position,q.toInt()))
+                            SelectedItem.itemPositionList.add(
+                                SelectedItem.PositionData(
+                                    position,
+                                    q.toInt()
+                                )
+                            )
                         }
-                        Log.e(TAG, "itemCode = $itemCode")
-                        Log.e(TAG, "itemQ = $q")
+//                        Log.e(TAG, "itemCode = $itemCode")
+//                        Log.e(TAG, "itemQ = $q")
                     }
                 }
+
+                val list = SelectedItem.itemPositionList
+
+                SelectedItem.itemPositionList.sortBy(SelectedItem.PositionData::quantity)
                 SelectedItem.positionCount = 0
                 SelectedItem.positionMaxPosition = SelectedItem.itemPositionList.size
+                for (i in list) {
+                    Log.e(TAG, "itemCode!!! = ${i.position}")
+                    Log.e(TAG, "itemQ!!! = ${i.quantity}")
+                }
                 callback.callBack()
             }
     }

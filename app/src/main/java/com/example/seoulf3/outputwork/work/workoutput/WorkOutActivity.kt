@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.tv.interactive.TvInteractiveAppService
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -49,12 +50,48 @@ class WorkOutActivity : AppCompatActivity() {
         })
     }
 
+    val FROM_SCAN = 2
+
+    val FROM_Q = 3
     fun startScan() {
         viewModel.getDataAtPosition(object : DataBaseCallBack {
             override fun callBack() {
-
+                val itemPosition = viewModel.getNowItemPosition()
+                val intent = Intent(this@WorkOutActivity, OutWorkScanActivity::class.java)
+                intent.putExtra("position", itemPosition)
+                startActivityForResult(intent, FROM_SCAN)
             }
 
         })
+    }
+
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+         if (resultCode == RESULT_OK) {
+
+             if (requestCode == FROM_SCAN) {
+                 //todo 수량체크
+                 val intent = Intent(this@WorkOutActivity, OutputCheckActivity::class.java)
+                 val itemName = viewModel.getSelectedItemName()
+                 val itemSize = viewModel.getSelectedItemSize()
+                 val position = viewModel.getSelectedItemPosition()
+                 val rQ = viewModel.getReleaseQ()
+
+                 intent.putExtra("name", itemName)
+                 intent.putExtra("position", position)
+                 intent.putExtra("size", itemSize)
+                 intent.putExtra("releaseQ", rQ)
+                 intent.putExtra("positionQ", viewModel.getNowItemPositionQuantity())
+
+                 startActivityForResult(intent, FROM_Q)
+             }
+
+             if (requestCode == FROM_Q) {
+                 //todo 갯수가 현재 재고와 맞을경우 현 포지션 삭제
+
+             }
+         }
+
     }
 }

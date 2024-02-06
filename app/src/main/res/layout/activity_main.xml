@@ -8,36 +8,253 @@
     android:gravity="center"
     tools:context=".MainActivity">
 
+    <TextView
+        android:layout_marginTop="20dp"
+        android:textStyle="bold"
+        android:textSize="30dp"
+        android:text = "서울 화스너\n재고 매니져"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
-    <Button
+    <androidx.cardview.widget.CardView
         android:id="@+id/btn_searchStock"
-        android:text="재고 확인"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#8D30D1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
 
-    <Button
-        android:id="@+id/btn_checkStock"
-        android:text="재고 조회 작업"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3" />
 
-    <Button
+            <ImageView
+                app:layout_constraintRight_toLeftOf="@id/guideline3"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/check"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+            <TextView
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/guideline3"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:text="재 고  확 인"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/btn_input"
-        android:text="입고 작업"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#3053D1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
 
-    <Button
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3" />
+
+            <ImageView
+                app:layout_constraintRight_toLeftOf="@id/guideline1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/warehouse"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+            <TextView
+                android:gravity="center"
+                app:layout_constraintLeft_toRightOf="@id/guideline1"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:text="입 고  작 업"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/btn_outputupdate"
-        android:text="출고 요청"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#3BD130"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
 
-    <Button
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3" />
+
+            <ImageView
+                app:layout_constraintRight_toLeftOf="@id/guideline2"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/release"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+            <TextView
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/guideline2"
+                app:layout_constraintRight_toRightOf="parent"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:text="출 고  요 청"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
         android:id="@+id/btn_output"
-        android:text="출고 작업"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#D13089"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3" />
+
+            <ImageView
+                app:layout_constraintRight_toLeftOf="@id/guideline4"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/delivery"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:gravity="center"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/guideline4"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:text="출 고  작 업"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/btn_checkStock"
+        android:layout_weight="1"
+        android:layout_margin="10dp"
+        app:cardElevation="5dp"
+        app:cardCornerRadius="20dp"
+        android:backgroundTint="#D13030"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/guideline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.3" />
+
+            <ImageView
+                app:layout_constraintRight_toLeftOf="@id/guideline5"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/check"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:gravity="center"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/guideline5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:textStyle="bold"
+                android:textSize="25sp"
+                android:textColor="@color/white"
+                android:text="재 고  조 사"
+                android:layout_width="0dp"
+                android:layout_height="0dp"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
 
 </LinearLayout>
