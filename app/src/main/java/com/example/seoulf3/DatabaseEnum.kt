@@ -6,6 +6,7 @@ enum class DatabaseEnum(val standard: String){
     STANDARD("standard"),
     POSITION("position"),
     ITEMCODE("itemCode"),
-    INPUTINFO("inputInfo")
+    INPUTINFO("inputInfo"),
+    ERROR("error")
 
 }

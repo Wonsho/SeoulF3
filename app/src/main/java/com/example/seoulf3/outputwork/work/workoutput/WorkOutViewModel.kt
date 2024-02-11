@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.AsyncListUtil.DataCallback
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
+import com.example.seoulf3.data.ErrorData
 import com.example.seoulf3.data.OutPutItem
 import com.google.firebase.database.core.view.DataEvent
 import com.google.firebase.database.ktx.getValue
@@ -43,6 +44,8 @@ class WorkOutViewModel : ViewModel() {
         var positionMaxPosition = 0
     }
 
+    private var dataList = mutableListOf<DataWithItemCode>()
+
     fun getReleaseQ(): String {
         return SelectedItem.releaseQ.toString()
     }
@@ -72,7 +75,6 @@ class WorkOutViewModel : ViewModel() {
         return positionData.position
     }
 
-    private var dataList = mutableListOf<DataWithItemCode>()
     fun setDate(date: String) {
         this.date = date
     }
@@ -160,4 +162,60 @@ class WorkOutViewModel : ViewModel() {
             }
     }
 
+//todo outputInfo data, Position Data, Quantity Data
+
+    fun insertError(q: String) {
+        val data = ErrorData(
+            SelectedItem.itemCode,
+            SelectedItem.itemCategoryCode,
+            SelectedItem.itemName,
+            SelectedItem.itemSize
+        )
+        MainViewModel.database.child(DatabaseEnum.ERROR.standard).child(SelectedItem.itemCode)
+            .setValue(data)
+        //todo 다음 포지션
+    }
+
+    fun checkData(q: String) {
+        val nowData = dataList.get(ItemCount.nowCount)
+        val releaseQ = nowData.itemReleaseQ.toInt()
+        val inputQ = q.toInt()
+        val decQ = releaseQ - inputQ
+        nowData.itemReleaseQ = decQ.toString()
+
+        dataList[ItemCount.nowCount] = nowData
+
+        if (decQ == 0) {
+            //todo 다음 아이템
+            updateItemInfo("0")
+        } else {
+            //todo 다음 포지션
+            updateItemInfo(decQ.toString())
+        }
+    }
+
+    private fun updateItemInfo(q: String) {
+        if (q == "0") {
+            MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(this.date)
+                .child(SelectedItem.itemCode).removeValue()
+        } else {
+            MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(this.date)
+                .child(SelectedItem.itemCode).child("itemReleaseQ")
+                .setValue(q)
+        }
+        updatePositionData(q)
+
+    }
+
+    fun updatePositionData(q: String) {
+        if (q == "0") {
+            //todo 현재 포지션 아이템 확인
+        } else {
+
+        }
+    }
+
+    fun updateQuantityData(q: String) {
+
+    }
 }

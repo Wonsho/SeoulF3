@@ -1,15 +1,14 @@
 package com.example.seoulf3.outputwork.work.workoutput.outputcheck
 
 import android.content.DialogInterface
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityOutputCheckBinding
-import kotlin.math.max
+import com.example.seoulf3.outputwork.work.workoutput.WorkOutActivity
 
 class OutputCheckActivity : AppCompatActivity() {
     private lateinit var viewModel: OutputCheckViewModel
@@ -27,17 +26,22 @@ class OutputCheckActivity : AppCompatActivity() {
             binding = ActivityOutputCheckBinding.inflate(layoutInflater)
         }
         setContentView(binding.root)
-        setView()
+        viewModel.setPosition(intent.getStringExtra("position").toString())
+        viewModel.setItemName(intent.getStringExtra("name").toString())
+        viewModel.setItemSize(intent.getStringExtra("size").toString())
+        viewModel.setRemainedBox(intent.getStringExtra("releaseQ").toString())
+        viewModel.setMaxQ(intent.getStringExtra("positionQ").toString())
         setOnClick()
+        setView()
     }
 
 
     fun setView() {
-        val position = intent.getStringExtra("position").toString()
-        val itemName = intent.getStringExtra("name").toString()
-        val itemSize = intent.getStringExtra("size").toString()
-        val remainedBox = intent.getStringExtra("releaseQ").toString()
-        val maxQ = intent.getStringExtra("positionQ").toString()
+        val position = viewModel.getPosition()
+        val itemName = viewModel.getItemName()
+        val itemSize = viewModel.getItemSize()
+        val remainedBox = viewModel.getItemRemainedBox()
+        val maxQ = viewModel.getMaxQ()
 
         binding.tvPosition.text = position
         binding.tvItemSize.text = itemSize
@@ -93,6 +97,29 @@ class OutputCheckActivity : AppCompatActivity() {
             }
         }
 
+        fun makeIntent(q: String): Intent {
+            val intent = Intent(this@OutputCheckActivity, WorkOutActivity::class.java)
+            intent.putExtra("position", viewModel.getPosition())
+            intent.putExtra("name", viewModel.getItemName())
+            intent.putExtra("size", viewModel.getItemSize())
+            intent.putExtra("releaseQ", viewModel.getItemRemainedBox())
+            intent.putExtra("positionQ", viewModel.getMaxQ())
+            intent.putExtra("outputQ",q)
+            return intent
+        }
+
+        fun intentToMain(quantity: String) {
+            val intent = makeIntent(quantity)
+            setResult(RESULT_OK, intent)
+            finish()
+        }
+
+        fun intentToActivityWithError(quantity: String) {
+            val intent = makeIntent(quantity)
+            setResult(RESULT_FIRST_USER, intent)
+            finish()
+        }
+
         binding.btnAddGoods.setOnClickListener {
 
             if(binding.tvNum.text.toString() != binding.tvMaxNum.text.toString()) {
@@ -102,24 +129,28 @@ class OutputCheckActivity : AppCompatActivity() {
                     .setPositiveButton("예", object : DialogInterface.OnClickListener{
                         override fun onClick(p0: DialogInterface?, p1: Int) {
                             //todo 다음 작업 진행 -> 만약 한개일 경우 계속 보여주기
+                            intentToActivityWithError(binding.tvNum.text.toString().trim())
                         }
 
                     })
                     .setNegativeButton("아니요", object : DialogInterface.OnClickListener{
                         override fun onClick(p0: DialogInterface?, p1: Int) {
+
                         }
 
                     })
                     .setNeutralButton("재고 이상", object : DialogInterface.OnClickListener{
                         override fun onClick(p0: DialogInterface?, p1: Int) {
                             //todo 에러 등록
+                            intentToActivityWithError(binding.tvNum.text.toString().trim())
                         }
                     })
                 dialog.create().show()
             } else {
                 //todo 다음 작업 진행
+                val q = binding.tvNum.text.toString().trim()
+                intentToMain(q)
             }
-            //todo 만약 maxQ와 수량이 맞지 않으면 알람 띄우기
 
         }
         binding.c.setOnClickListener {
@@ -139,7 +170,8 @@ class OutputCheckActivity : AppCompatActivity() {
                 .setMessage("현 위치의 수량이 맞지 않습니까?")
                 .setPositiveButton("예", object : DialogInterface.OnClickListener {
                     override fun onClick(p0: DialogInterface?, p1: Int) {
-
+                        //todo 에러등록 다음 단계
+                        intentToActivityWithError(binding.tvNum.text.toString().trim())
                     }
 
                 })

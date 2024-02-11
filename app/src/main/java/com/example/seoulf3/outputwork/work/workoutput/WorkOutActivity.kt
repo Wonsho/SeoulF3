@@ -83,14 +83,18 @@ class WorkOutActivity : AppCompatActivity() {
                  intent.putExtra("size", itemSize)
                  intent.putExtra("releaseQ", rQ)
                  intent.putExtra("positionQ", viewModel.getNowItemPositionQuantity())
-
                  startActivityForResult(intent, FROM_Q)
              }
 
              if (requestCode == FROM_Q) {
                  //todo 갯수가 현재 재고와 맞을경우 현 포지션 삭제
-
+                 val q = data!!.getStringExtra("outputQ").toString()
+                 viewModel.checkData(q)
              }
+         } else if (resultCode == RESULT_FIRST_USER && requestCode == FROM_Q) {
+             //todo 수량 에러로 넘어옴
+             val q = data!!.getStringExtra("outputQ").toString()
+             viewModel.insertError(q)
          }
 
     }
