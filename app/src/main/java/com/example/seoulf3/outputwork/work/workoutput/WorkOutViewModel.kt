@@ -8,6 +8,7 @@ import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.data.ErrorData
 import com.example.seoulf3.data.OutPutItem
+import com.example.seoulf3.data.Quantity
 import com.google.firebase.database.core.view.DataEvent
 import com.google.firebase.database.ktx.getValue
 
@@ -144,8 +145,6 @@ class WorkOutViewModel : ViewModel() {
                                 )
                             )
                         }
-//                        Log.e(TAG, "itemCode = $itemCode")
-//                        Log.e(TAG, "itemQ = $q")
                     }
                 }
 
@@ -176,7 +175,11 @@ class WorkOutViewModel : ViewModel() {
         //todo 다음 포지션
     }
 
-    fun checkData(q: String) {
+    interface CallBack {
+        fun callBack()
+    }
+
+    fun checkData(q: String, callBack: WorkOutActivity.CheckCallBack) {
         val nowData = dataList.get(ItemCount.nowCount)
         val releaseQ = nowData.itemReleaseQ.toInt()
         val inputQ = q.toInt()
@@ -185,16 +188,35 @@ class WorkOutViewModel : ViewModel() {
 
         dataList[ItemCount.nowCount] = nowData
 
+        //todo 만약 포지션 카운트가 맥스랑 같은경우 에러를 띄우고 다음 아이템으로 넘어감
+
         if (decQ == 0) {
             //todo 다음 아이템
-            updateItemInfo("0")
+            updateItemInfo("0", inputQ.toString(), object : CallBack {
+                override fun callBack() {
+                    //todo 다음 아이템으로 이동
+                    ItemCount.nowCount += 1
+                    //todo 아이템 새로 고침
+                    callBack.callBack(WorkOutActivity.Notion.NEXT_ITEM)
+                }
+
+            })
         } else {
             //todo 다음 포지션
-            updateItemInfo(decQ.toString())
+            updateItemInfo(decQ.toString(), inputQ.toString(), object : CallBack {
+                override fun callBack() {
+                    //todo 다음 포지션으로 이동
+                    SelectedItem.positionCount += 1
+                    callBack.callBack(WorkOutActivity.Notion.NEXT_POSITION)
+                }
+            })
         }
     }
 
-    private fun updateItemInfo(q: String) {
+    private fun updateItemInfo(q: String, qInPosition: String, callBack: CallBack) {
+        //q -> 현재 아이템이 나가야 하는 수량
+        //qInPosition -> 현재 나간 수량
+
         if (q == "0") {
             MainViewModel.database.child(DatabaseEnum.INPUTINFO.standard).child(this.date)
                 .child(SelectedItem.itemCode).removeValue()
@@ -203,19 +225,70 @@ class WorkOutViewModel : ViewModel() {
                 .child(SelectedItem.itemCode).child("itemReleaseQ")
                 .setValue(q)
         }
-        updatePositionData(q)
+        updatePositionData(q, qInPosition, callBack)
 
     }
 
-    fun updatePositionData(q: String) {
-        if (q == "0") {
-            //todo 현재 포지션 아이템 확인
-        } else {
+    fun updatePositionData(q: String, qInPosition: String, callback: CallBack) {
 
-        }
+        //q -> 현재 아이템이 나가야 하는 수량
+        //qInPosition -> 현재 나간 수량
+        val nowPositionData = SelectedItem.itemPositionList[SelectedItem.positionCount]
+        val nowPosition = nowPositionData.position
+        val itemQuantityInPosition = nowPositionData.quantity
+        val stockQ = itemQuantityInPosition - qInPosition.toInt()
+        nowPositionData.quantity = stockQ
+        SelectedItem.itemPositionList[SelectedItem.positionCount] = nowPositionData
+        val outPutQ = qInPosition.toInt()
+
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard).child(nowPosition)
+            .child(SelectedItem.itemCode).child("quantityInPosition").get()
+            .addOnSuccessListener {
+                val qInPo = it.value.toString().toInt()
+
+                if ((qInPo - outPutQ) == 0) {
+                    MainViewModel.database.child(DatabaseEnum.POSITION.standard).child(nowPosition)
+                        .child(SelectedItem.itemCode).removeValue()
+
+                } else {
+                    MainViewModel.database.child(DatabaseEnum.POSITION.standard).child(nowPosition)
+                        .child(SelectedItem.itemCode).child("quantityInPosition")
+                        .setValue(qInPo.toString())
+                }
+                updateQuantityData(q, qInPosition, callback)
+            }
+
+//        if (q == "0") {
+//            //todo 현재 포지션 아이템 확인
+//            //todo 에러가 없음
+//            //todo 다음 아이템으로 진행
+//        } else {
+//            //todo 에러 체크
+//        }
     }
 
-    fun updateQuantityData(q: String) {
+    fun updateQuantityData(q: String, qInPosition: String, callback: CallBack) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(SelectedItem.itemCategoryCode).child(SelectedItem.itemCode).get()
+            .addOnSuccessListener {
+                val item = it.getValue<Quantity>()!!
+                var q = item.quantity.toString().toInt() - qInPosition.toInt()
+                var rQ = item.releaseQuantity.toString().toInt() - qInPosition.toInt()
+                item.quantity = q.toString()
+                item.releaseQuantity = rQ.toString()
 
+                if (q == 0) {
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(SelectedItem.itemCategoryCode).child(SelectedItem.itemCode)
+                        .removeValue()
+                    callback.callBack()
+                } else {
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(SelectedItem.itemCategoryCode).child(SelectedItem.itemCode)
+                        .setValue(item)
+                    callback.callBack()
+                }
+
+            }
     }
 }

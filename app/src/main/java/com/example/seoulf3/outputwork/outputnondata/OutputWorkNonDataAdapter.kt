@@ -8,11 +8,10 @@ import com.example.seoulf3.FirstSpellCheck
 import com.example.seoulf3.databinding.SearchStockNameListBinding
 
 class OutputWorkNonDataAdapter : BaseAdapter() {
-    private var itemList = mutableListOf<String>()
+    private var itemNameList = mutableListOf<String>()
+    override fun getCount(): Int = itemNameList.size
 
-    override fun getCount(): Int = itemList.size
-
-    override fun getItem(p0: Int): String = itemList[p0]
+    override fun getItem(p0: Int): String = itemNameList[p0]
 
     override fun getItemId(p0: Int): Long = p0.toLong()
 
@@ -22,18 +21,23 @@ class OutputWorkNonDataAdapter : BaseAdapter() {
         } else {
             SearchStockNameListBinding.bind(p1)
         }
-        val itemName = itemList[p0]
-        val spell = FirstSpellCheck.firstSpellCheckAndReturn(itemName)
 
-        if (p0 == 0 || spell != FirstSpellCheck.firstSpellCheckAndReturn(itemList[p0 - 1])) {
+        val itemName = itemNameList[p0]
+        val firstSpell = FirstSpellCheck.firstSpellCheckAndReturn(itemName)
+
+        if (p0 == 0 || firstSpell != FirstSpellCheck.firstSpellCheckAndReturn(itemNameList[p0 - 1])) {
             binding.laySpell.visibility = View.VISIBLE
-         } else {
+        } else {
             binding.laySpell.visibility = View.GONE
         }
+
+        binding.tvSpell.text = firstSpell
+        binding.tvItemName.text = itemName
+
         return binding.root
     }
 
-    fun setData(itemList: MutableList<String>) {
-        this.itemList = itemList
+    fun setItem(itemNameList: MutableList<String>) {
+        this.itemNameList = itemNameList
     }
 }

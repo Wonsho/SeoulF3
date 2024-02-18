@@ -65,37 +65,58 @@ class WorkOutActivity : AppCompatActivity() {
         })
     }
 
-     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    object Notion {
+        val NEXT_ITEM = 0
+        val NEXT_POSITION = 1
+    }
+
+    interface CheckCallBack {
+        fun callBack(b: Int)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-         if (resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
 
-             if (requestCode == FROM_SCAN) {
-                 //todo 수량체크
-                 val intent = Intent(this@WorkOutActivity, OutputCheckActivity::class.java)
-                 val itemName = viewModel.getSelectedItemName()
-                 val itemSize = viewModel.getSelectedItemSize()
-                 val position = viewModel.getSelectedItemPosition()
-                 val rQ = viewModel.getReleaseQ()
+            if (requestCode == FROM_SCAN) {
+                //todo 수량체크
+                val intent = Intent(this@WorkOutActivity, OutputCheckActivity::class.java)
+                val itemName = viewModel.getSelectedItemName()
+                val itemSize = viewModel.getSelectedItemSize()
+                val position = viewModel.getSelectedItemPosition()
+                val rQ = viewModel.getReleaseQ()
 
-                 intent.putExtra("name", itemName)
-                 intent.putExtra("position", position)
-                 intent.putExtra("size", itemSize)
-                 intent.putExtra("releaseQ", rQ)
-                 intent.putExtra("positionQ", viewModel.getNowItemPositionQuantity())
-                 startActivityForResult(intent, FROM_Q)
-             }
+                intent.putExtra("name", itemName)
+                intent.putExtra("position", position)
+                intent.putExtra("size", itemSize)
+                intent.putExtra("releaseQ", rQ)
+                intent.putExtra("positionQ", viewModel.getNowItemPositionQuantity())
+                startActivityForResult(intent, FROM_Q)
+            }
 
-             if (requestCode == FROM_Q) {
-                 //todo 갯수가 현재 재고와 맞을경우 현 포지션 삭제
-                 val q = data!!.getStringExtra("outputQ").toString()
-                 viewModel.checkData(q)
-             }
-         } else if (resultCode == RESULT_FIRST_USER && requestCode == FROM_Q) {
-             //todo 수량 에러로 넘어옴
-             val q = data!!.getStringExtra("outputQ").toString()
-             viewModel.insertError(q)
-         }
+            if (requestCode == FROM_Q) {
+                //todo 갯수가 현재 재고와 맞을경우 현 포지션 삭제
+                val q = data!!.getStringExtra("outputQ").toString()
+                viewModel.checkData(q, object : CheckCallBack {
+                    override fun callBack(b: Int) {
+                        if (b == Notion.NEXT_ITEM) {
+                            //todo 다음 아이템 -> 버튼 눌러야 작동
+                            Toast.makeText(applicationContext, "NEXTITEM", Toast.LENGTH_SHORT).show()
+                        } else if(b == Notion.NEXT_POSITION) {
+                            //todo 다음 포지션
+                            //todo 버튼 숨긴다음 딜레이 준다음 다음 작업 시행
+                            //todo 바로 작동
+                            Toast.makeText(applicationContext, "NEXTPOSITION", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                })
+            }
+        } else if (resultCode == RESULT_FIRST_USER && requestCode == FROM_Q) {
+            //todo 수량 에러로 넘어옴
+            val q = data!!.getStringExtra("outputQ").toString()
+            viewModel.insertError(q)
+        }
 
     }
 }
