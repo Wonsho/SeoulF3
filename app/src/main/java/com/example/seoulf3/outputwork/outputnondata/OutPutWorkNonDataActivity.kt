@@ -62,6 +62,7 @@ class OutPutWorkNonDataActivity : AppCompatActivity() {
             intent.putExtra("size", itemSizeCode)
             intent.putExtra("category", itemCategory)
             startActivity(intent)
+            finish()
         }
     }
 

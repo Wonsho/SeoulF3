@@ -79,7 +79,7 @@ class OutPutWorkNonDataSizeListActivity : AppCompatActivity() {
             }
             val itemCode = viewModel.getItemCodeByIndex(i)
             val itemName = viewModel.getItemName()
-            val itemCategoryCode = viewModel.getItemCodeByIndex(i)
+            val itemCategoryCode = viewModel.getItemCategoryCode()
 
             val intent = Intent(this@OutPutWorkNonDataSizeListActivity, InputQuantityActivity::class.java)
             intent.putExtra("name", itemName)
@@ -88,6 +88,7 @@ class OutPutWorkNonDataSizeListActivity : AppCompatActivity() {
             intent.putExtra("itemCode", itemCode)
             intent.putExtra("category", itemCategoryCode)
             startActivity(intent)
+            finish()
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.databinding.ActivityScanPositionBinding
 import com.example.seoulf3.outputwork.outputnondata.scanposition.quantity.QuantityActivity
+import com.example.seoulf3.outputwork.work.workoutput.WorkOutViewModel
 
 class ScanPositionActivity : AppCompatActivity() {
     private lateinit var viewModel: ScanPositionViewModel
@@ -32,6 +33,7 @@ class ScanPositionActivity : AppCompatActivity() {
         val itemCategoryCode = intent.getStringExtra("category").toString()
         val itemCode = intent.getStringExtra("itemCode").toString()
         val maxQ = intent.getStringExtra("quantity").toString()
+        Toast.makeText(applicationContext, itemCategoryCode, Toast.LENGTH_SHORT).show()
 
         viewModel.setItemName(itemName)
         viewModel.setItemSize(itemSize)
@@ -77,6 +79,11 @@ class ScanPositionActivity : AppCompatActivity() {
                 } else {
 
                     val intent = Intent(this@ScanPositionActivity, QuantityActivity::class.java)
+                    intent.putExtra("position", viewModel.getNowPosition())
+                    intent.putExtra("name", viewModel.getItemName())
+                    intent.putExtra("size", viewModel.getItemSize())
+                    intent.putExtra("quantityInPosition", viewModel.getQuantityInPosition())
+                    intent.putExtra("needQ", viewModel.getNeedQ())
                     startActivityForResult(intent, 8)
 
                 }
@@ -103,7 +110,6 @@ class ScanPositionActivity : AppCompatActivity() {
             binding.lay.visibility = View.GONE
         }, 3000)
 
-        goToNextPosition()
     }
 
     fun setView() {
@@ -112,16 +118,50 @@ class ScanPositionActivity : AppCompatActivity() {
     }
 
     fun goToNextPosition() {
+        binding.layDefault.visibility = View.GONE
 
+        viewModel.nextPosition()
+
+        if (viewModel.checkQuantity() || viewModel.getMaxCount() == "0") {
+            //작업 끝
+            Toast.makeText(applicationContext, "모든 출고 작업이 완료되었습니다.", Toast.LENGTH_SHORT).show()
+            finish()
+
+        } else {
+            setView()
+            binding.rePosiiton.text = viewModel.getNowPosition()
+            delayView()
+            startScan()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == RESULT_OK) {
-            //todo 다음 데이터
-        } else if(resultCode == RESULT_FIRST_USER) {
-            //todo 수량 오류
+            binding.layDefault.visibility = View.VISIBLE
+            val intent = data!!
+            val inputQ = intent.getStringExtra("inputQuantity").toString()
+            viewModel.addOutputtedQ(inputQ)
+            viewModel.replaceQuantityData(inputQ)
+            viewModel.insertData(object : DataBaseCallBack {
+                override fun callBack() {
+                    goToNextPosition()
+                }
+            }, inputQ)
+
+        } else if (resultCode == RESULT_FIRST_USER) {
+            val intent = data
+            if (intent != null) {
+                val q = intent.getStringExtra("inputQuantity")
+
+                if (!q.isNullOrBlank()) {
+                    //todo 에러 입력 , 수량있음
+                }
+
+            } else {
+                //todo 에러 입력, 수량 없음, 해당 수량 없음 다음 작업
+            }
         } else {
             finish()
         }
