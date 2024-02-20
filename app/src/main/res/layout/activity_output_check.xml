@@ -98,10 +98,10 @@
 
 
         <TextView
-            android:textSize="24dp"
-            android:text=" 박스 출고요청"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:text=" 박스 출고남음"
+            android:textSize="24dp" />
     </LinearLayout>
 
 

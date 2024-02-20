@@ -1,5 +1,6 @@
 package com.example.seoulf3.outputwork.outputnondata.scanposition.quantity
 
+import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -14,11 +15,12 @@ import kotlin.math.max
 class QuantityActivity : AppCompatActivity() {
     private lateinit var binding: ActivityOutputCheckBinding
 
-    private lateinit var position: String
-    private lateinit var itemName: String
-    private lateinit var itemSize: String
-    private lateinit var needQ: String
-    private lateinit var quantityInPosition: String
+    var position = ""
+    var itemName = ""
+    var itemSize = ""
+    var outputtedQ = ""
+    var maxQ = ""
+    var qInPosition = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,112 +28,87 @@ class QuantityActivity : AppCompatActivity() {
         if (!::binding.isInitialized) {
             binding = ActivityOutputCheckBinding.inflate(layoutInflater)
         }
-
-        getSetData()
+        setContentView(binding.root)
+        getData()
         setView()
         setOnClick()
-        setContentView(binding.root)
-    }
-
-
-    fun getSetData() {
-
-        val itemName = intent.getStringExtra("name").toString()
-        val itemSize = intent.getStringExtra("size").toString()
-        val position = intent.getStringExtra("position").toString()
-        val needQ = intent.getStringExtra("needQ").toString()
-        val positionQ = intent.getStringExtra("quantityInPosition").toString()
-        this.itemName = itemName
-        this.itemSize = itemSize
-        this.position = position
-        this.needQ = needQ
-        this.quantityInPosition = positionQ
-
     }
 
     fun setView() {
         binding.tvPosition.text = this.position
         binding.tvItemName.text = this.itemName
         binding.tvItemSize.text = this.itemSize
-        binding.tvQuantity.text = this.needQ
-        val maxQ = this.needQ.toInt()
-        val poQ = this.quantityInPosition.toInt()
 
-        val quantity = if (maxQ >= poQ) {
-            poQ.toString()
+        val outputtedQ = outputtedQ.toInt()
+        val maxQ = this.maxQ.toInt()
+
+        val needQ = maxQ - outputtedQ
+        binding.tvQuantity.text = needQ.toString()
+
+        val pQ = this.qInPosition.toInt()
+
+        if (pQ > needQ) {
+            binding.tvMaxNum.text = needQ.toString()
         } else {
-            maxQ.toString()
+            binding.tvMaxNum.text = pQ.toString()
         }
-        binding.tvMaxNum.text = quantity
+
 
     }
 
-    fun intentData() {
-        setResult(RESULT_OK, intent.putExtra("inputQuantity", binding.tvNum.text.toString().trim()))
-        finish()
-    }
+    fun getData() {
+        position = intent.getStringExtra("position").toString()
+        itemName = intent.getStringExtra("name").toString()
+        itemSize = intent.getStringExtra("size").toString()
+        outputtedQ = intent.getStringExtra("outtedQ").toString()
+        maxQ = intent.getStringExtra("maxQ").toString()
+        qInPosition = intent.getStringExtra("qInPosition").toString()
 
-    fun intentError() {
-        setResult(RESULT_FIRST_USER)
-        finish()
-    }
-
-    fun intentErrorAndIntentQuantity() {
-        setResult(RESULT_FIRST_USER, intent.putExtra("inputQuantity", binding.tvNum.text.toString().trim()))
-        finish()
-    }
-
-    fun showDialog() {
-        val dialog = AlertDialog.Builder(this@QuantityActivity)
-            .setTitle("알림")
-            .setMessage("요청 수량보다 적습니다.\n다음 작업으로 넘어가시겠습니까?")
-            .setPositiveButton("예") { p0, p1 ->
-                //todo 다음 작업
-                intentData()
-            }
-            .setNegativeButton("아니요") { p0, p1 ->
-
-            }
-            .setNeutralButton("재고 이상") { p0, p1 ->
-                //todo 재고 이상으로 등록
-                intentErrorAndIntentQuantity()
-            }
-        dialog.create().show()
     }
 
     fun showErrorDialog() {
-        val dialog = AlertDialog.Builder(this@QuantityActivity)
+        AlertDialog.Builder(this@QuantityActivity)
             .setTitle("알림")
-            .setMessage("재고가 맞지 않습니까?")
+            .setMessage("현재 품목이 존재하지 않습니까?")
             .setPositiveButton("예") { p0, p1 ->
-                //todo 현재 수량에서 가져갈 수량 입력 후 에러 입력
-                intentError()
+                //에러 입력
+                intentOnlyError()
             }
             .setNegativeButton("아니요") { p0, p1 ->
-
+                AlertDialog.Builder(this@QuantityActivity)
+                    .setMessage("가능한 수량을 입력후 \n확인을 누르고\n재고이상을 눌러주세요.")
+                    .setPositiveButton(
+                        "확인"
+                    ) { _, _ -> }
+                    .setTitle("주의")
+                    .create().show()
             }
-        dialog.create().show()
+            .create().show()
     }
 
-    fun showBackDialog() {
-        val dialog = AlertDialog.Builder(this@QuantityActivity)
+    fun showDialogNotEnoughQ() {
+        AlertDialog.Builder(this@QuantityActivity)
             .setTitle("알림")
-            .setMessage("현 작업을 중지하고 뒤로 가시겠습니까?")
+            .setMessage("현위치 출고 가능한 수량보다 적습니다.\n다음작업으로 넘어가시겠습니까?")
             .setPositiveButton("예") { p0, p1 ->
-                setResult(RESULT_CANCELED)
-                finish()
+                //다음 작업
+                intentNowEnough()
             }
             .setNegativeButton("아니요") { p0, p1 ->
+            }
+            .setNeutralButton("재고 이상") { p0, p1 ->
+                //재고 이상
+                if (binding.tvNum.text == "0") {
+                    intentOnlyError()
+                } else {
+                    intentWithError()
+                }
 
             }
-        dialog.create().show()
+            .create().show()
     }
 
     fun setOnClick() {
-
-        binding.btnError.setOnClickListener {
-            showErrorDialog()
-        }
 
         fun checkFirstZero() {
             if (binding.tvNum.text == "0") {
@@ -156,10 +133,12 @@ class QuantityActivity : AppCompatActivity() {
         binding.btnAddGoods.setOnClickListener {
             //todo 만약 수량이 요구 수량보다 적을경우 다이로그 띄우기
             if (binding.tvNum.text != binding.tvMaxNum.text) {
-                showDialog()
+                //todo 다이로그 띄우기
+                showDialogNotEnoughQ()
                 return@setOnClickListener
+            } else {
+                intentData()
             }
-            intentData()
         }
         binding.c.setOnClickListener {
             if (binding.tvNum.length() <= 1) {
@@ -193,7 +172,57 @@ class QuantityActivity : AppCompatActivity() {
         }
     }
 
+    val result = ScanPositionActivity.Result
+    fun intentData() {
+        //모든 데이터 보냄
+        val result = this.result.DATA
+        val q = binding.tvNum.text.toString()
+        intent.putExtra("q", q)
+        setResult(result)
+        finish()
+    }
+
+    fun intentNowEnough() {
+        //충분치 않는 데이터
+        val result = this.result.DATA_NOT_ENOUGH
+        val q = binding.tvNum.text.toString()
+        intent.putExtra("q", q)
+        setResult(result)
+        finish()
+    }
+
+    fun intentWithError() {
+        //에러와 함께 충분치 않은 데이터
+        val result = this.result.DATA_WITH_ERROR
+        val q = binding.tvNum.text.toString()
+        intent.putExtra("q", q)
+        setResult(result)
+        finish()
+    }
+
+    fun intentOnlyError() {
+        //오직 에러만 보내기
+        val result = this.result.ONLY_ERROR
+        val q = binding.tvNum.text.toString()
+        intent.putExtra("q", q)
+        setResult(result)
+        finish()
+    }
+
+    fun showDialog() {
+        AlertDialog.Builder(this@QuantityActivity)
+            .setTitle("알림")
+            .setMessage("모든 작업을 중지하고 뒤로가시겠습니까?")
+            .setPositiveButton("예") { p0, p1 ->
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+            .setPositiveButton("아니요") { p0, p1 -> }
+            .create().show()
+
+    }
+
     override fun onBackPressed() {
-        showBackDialog()
+        showDialog()
     }
 }
