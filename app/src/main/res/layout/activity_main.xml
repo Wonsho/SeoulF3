@@ -10,9 +10,10 @@
 
     <TextView
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:textStyle="bold"
         android:textSize="30dp"
-        android:text = "서울 화스너\n재고 매니져"
+        android:text = "재고 관리 도우미"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -22,14 +23,15 @@
         android:layout_margin="10dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#8D30D1"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:padding="10dp"
+            android:background="#D9A730FF"
             android:gravity="center"
+            android:elevation="5dp"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -55,7 +57,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintLeft_toRightOf="@id/guideline3"
                 android:textStyle="bold"
-                android:textSize="25sp"
+                android:textSize="30dp"
                 android:textColor="@color/white"
                 android:text="재 고  확 인"
                 android:layout_width="0dp"
@@ -69,15 +71,14 @@
         android:layout_margin="10dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#3053D1"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
+            android:background="#D93053D1"
             android:gravity="center"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -103,7 +104,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textStyle="bold"
-                android:textSize="25sp"
+                android:textSize="30dp"
                 android:textColor="@color/white"
                 android:text="입 고  작 업"
                 android:layout_width="0dp"
@@ -117,15 +118,14 @@
         android:layout_margin="10dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#3BD130"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
+            android:background="#D93BD130"
             android:gravity="center"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -151,7 +151,7 @@
                 app:layout_constraintLeft_toRightOf="@id/guideline2"
                 app:layout_constraintRight_toRightOf="parent"
                 android:textStyle="bold"
-                android:textSize="25sp"
+                android:textSize="30dp"
                 android:textColor="@color/white"
                 android:text="출 고  요 청"
                 android:layout_width="0dp"
@@ -165,15 +165,14 @@
         android:layout_margin="10dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#D13089"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-
+            android:background="#D9D13089"
             android:gravity="center"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
+            android:padding="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -193,6 +192,7 @@
                 android:src="@drawable/delivery"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"/>
+
             <TextView
                 android:gravity="center"
                 app:layout_constraintRight_toRightOf="parent"
@@ -200,7 +200,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textStyle="bold"
-                android:textSize="25sp"
+                android:textSize="30dp"
                 android:textColor="@color/white"
                 android:text="출 고  작 업"
                 android:layout_width="0dp"
@@ -214,7 +214,7 @@
         android:layout_margin="10dp"
         app:cardElevation="5dp"
         app:cardCornerRadius="20dp"
-        android:backgroundTint="#D13030"
+        android:backgroundTint="#D9D13030"
         android:layout_width="match_parent"
         android:layout_height="0dp">
 
@@ -248,7 +248,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:textStyle="bold"
-                android:textSize="25sp"
+                android:textSize="30dp"
                 android:textColor="@color/white"
                 android:text="재 고  조 사"
                 android:layout_width="0dp"

@@ -1,21 +1,23 @@
 package com.example.seoulf3.checkstock
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DatabaseEnum
+import com.example.seoulf3.LoadingDialog
 import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.R
 import com.example.seoulf3.checkstock.`in`.StockBarcodeScanActivity
 import com.example.seoulf3.databinding.ActivityBeforeCheckStockBinding
 
 class BeforeCheckStockActivity : AppCompatActivity() {
-    interface CallBack {
-        fun callBack()
-    }
 
     private lateinit var binding: ActivityBeforeCheckStockBinding
-    private var quantity: String = ""
+    private lateinit var viewModel : BeforeCheckViewModel
+    private lateinit var dialog: AlertDialog
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -23,25 +25,14 @@ class BeforeCheckStockActivity : AppCompatActivity() {
             binding = ActivityBeforeCheckStockBinding.inflate(layoutInflater)
         }
 
-        setContentView(binding.root)
-
-        setOnClick()
-    }
-
-    private fun setOnClick() {
-        binding.btnBack.setOnClickListener { finish() }
-        binding.btnStartCheck.setOnClickListener {
-            startActivity(Intent(this@BeforeCheckStockActivity, StockBarcodeScanActivity::class.java))
+        if (!::viewModel.isInitialized) {
+            viewModel = ViewModelProvider(this@BeforeCheckStockActivity)[BeforeCheckViewModel::class.java]
         }
 
-    }
-
-    private fun getDataFromDB(callBack: CallBack) {
-        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).get()
-            .addOnSuccessListener {
-                this.quantity = it.childrenCount.toString()
-                callBack.callBack()
-            }
+        if (!::dialog.isInitialized) {
+            dialog = LoadingDialog().getDialog(this@BeforeCheckStockActivity)
+        }
+        setContentView(binding.root)
     }
 
 

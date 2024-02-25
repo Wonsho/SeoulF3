@@ -9,12 +9,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layDefault"
-        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        android:elevation="5dp">
-
+        android:elevation="5dp"
+        android:visibility="gone">
 
 
         <androidx.constraintlayout.widget.Guideline
@@ -50,43 +49,49 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/lay"
-        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        android:elevation="2dp">
+        android:elevation="2dp"
+        android:visibility="visible">
 
         <LinearLayout
-            android:gravity="center"
-            app:layout_constraintBottom_toTopOf="@id/guideline6"
-            app:layout_constraintTop_toTopOf="parent"
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="0dp">
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@id/guideline6"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:textSize="25dp"
-                android:text="현재 출고 수량 : "
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text="현재 출고 수량 : "
+                android:textSize="25dp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_num"
-                android:textSize="25dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
                 android:textSize="25dp"
-                android:text=" / "
+                android:textStyle="bold" />
+
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text=" / "
+                android:textSize="25dp"
+                android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/tv_max"
-                android:textSize="25dp"
-                android:text="20"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:text="20"
+                android:textSize="25dp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <androidx.constraintlayout.widget.Guideline
@@ -113,7 +118,7 @@
             android:gravity="center"
             android:text="해당 아이템 데이터를\n찾고 있습니다.\n잠시만 기다려 주세요."
             android:textColor="@color/black"
-            android:textSize="20sp"
+            android:textSize="23dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

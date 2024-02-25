@@ -3,16 +3,14 @@ package com.example.seoulf3.outputwork.outputnondata.scanposition
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
-import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.databinding.ActivityScanPositionBinding
 import com.example.seoulf3.outputwork.outputnondata.scanposition.quantity.QuantityActivity
-import com.example.seoulf3.outputwork.work.workoutput.WorkOutViewModel
 
 class ScanPositionActivity : AppCompatActivity() {
     private lateinit var viewModel: ScanPositionViewModel
@@ -23,7 +21,9 @@ class ScanPositionActivity : AppCompatActivity() {
         val DATA_WITH_ERROR = 12
         val DATA = 13
         val DATA_NOT_ENOUGH = 14
-
+        val FINISH = 15
+        val NEXT = 16
+        val SAME_POSITION = 17
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,30 +132,120 @@ class ScanPositionActivity : AppCompatActivity() {
         }, 3000)
     }
 
+    //todo 포지션 데이터가 채워지면 해당 포지션 데이터 삭제후 맥스, 카운트 삭제 -> 실행
+    // 해당 데이터가 채워 지지 않을 경우 해당 포지션 카운트만 올림
+    //
+
+    interface CallBackResult {
+        fun callBack(resultCode: Int)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        binding.layDefault.visibility = View.VISIBLE
 
         if (resultCode == RESULT_CANCELED) {
             finish()
             return
         }
 
+        fun showFinishToastM() {
+            Toast.makeText(applicationContext, "작업이 종료되었습니다.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
         if (requestCode == 8) {
             if (resultCode == Result.DATA) {
                 //데이터 충분
                 val q = data!!.getStringExtra("q").toString()
+                viewModel.insertData(q, object : CallBackResult {
+                    override fun callBack(resultCode: Int) {
+                        when (resultCode) {
+                            Result.FINISH -> {
+                                //todo 끝내기
+                                showFinishToastM()
+                            }
+
+                            Result.NEXT -> {
+                                //todo 다음 작업
+                                delayView()
+                            }
+                        }
+                    }
+
+                })
+
             } else if (resultCode == Result.DATA_NOT_ENOUGH) {
                 // 데이터 불풍분
                 val q = data!!.getStringExtra("q").toString()
 
+                viewModel.insertData(q, object : CallBackResult {
+                    override fun callBack(resultCode: Int) {
+                        when (resultCode) {
+                            Result.FINISH -> {
+                                showFinishToastM()
+                            }
+
+                            Result.NEXT -> {
+                                delayView()
+                            }
+                        }
+                    }
+                })
+
             } else if (resultCode == Result.DATA_WITH_ERROR) {
                 //데이터 와 현수량 이상
                 val q = data!!.getStringExtra("q").toString()
+                viewModel.insertErrorWithData(q, object : CallBackResult {
+                    override fun callBack(resultCode: Int) {
+                        when (resultCode) {
+                            Result.FINISH -> {
+                                showFinishToastM()
+                            }
+
+                            Result.NEXT -> {
+                                delayView()
+                            }
+
+
+                        }
+                    }
+
+                })
 
             } else if (resultCode == Result.ONLY_ERROR) {
                 //현재 수량 이상
-                //todo 현수량 없애고 에러 입력후 다음 데이터
+                viewModel.insertError(object : CallBackResult {
+                    override fun callBack(resultCode: Int) {
+                        when (resultCode) {
+
+                            Result.NEXT -> {
+                                delayView()
+                            }
+
+                            Result.FINISH -> {
+                                showFinishToastM()
+                            }
+                        }
+                    }
+                })
             }
         }
+    }
+
+    override fun onBackPressed() {
+        AlertDialog.Builder(this@ScanPositionActivity)
+            .setTitle("알림")
+            .setMessage("모든 작업을 종료하고 뒤로가시겠습니까?")
+            .setPositiveButton("예"
+            ) { p0, p1 ->
+                setResult(RESULT_CANCELED)
+                finish()
+            }
+            .setNegativeButton("아니요"
+            ) { p0, p1 ->  }
+            .create().show()
+
     }
 }

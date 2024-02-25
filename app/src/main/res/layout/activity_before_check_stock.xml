@@ -37,26 +37,24 @@
         android:layout_height="1dp"/>
 
     <TextView
+        android:textStyle="bold"
+        android:gravity="center"
         android:id="@+id/tv_info"
         android:layout_margin="10dp"
-        android:textSize="20sp"
+        android:textSize="23dp"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/line"
-        android:text="현재 총 재고 품목은 5개 입 니다.\n아래의 버튼을 누르면 재고 검사를 시작합니다."
+        android:text="재고 불일치 품목입니다. \n 원하는 품목을 눌러\n재고 검사를 실행해주세요."
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/btn_startCheck"
-        android:padding="20sp"
-        android:textSize="20sp"
-        android:text="재고 검사 실시"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+    <ListView
+        android:id="@+id/lv"
+        android:layout_margin="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_info"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

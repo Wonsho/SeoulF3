@@ -100,7 +100,12 @@ class InputItemListViewModel : ViewModel() {
                 //todo 아이템 코드가 없음 -> 생성
                 chooseItemInfo.hasCode = false
                 makeItemCode(callBack)
-                insertItemCode()
+                insertItemCode(object : CallBackResult {
+                    override fun callBack() {
+
+                    }
+
+                })
                 return@addOnSuccessListener
             }
     }
@@ -163,26 +168,35 @@ class InputItemListViewModel : ViewModel() {
         callBack.callBack("")
     }
 
-    private fun insertDataAtQuantity() {
+    private fun insertDataAtQuantity(callBack: CallBackResult) {
         val item = chooseItemInfo
         MainViewModel.database.child(DatabaseEnum.QUANTITY.standard).child(item.itemCategoryCode)
             .child(item.itemCode).setValue(Quantity(item.itemQuantity, "0"))
+            .addOnSuccessListener {
+                callBack.callBack()
+            }
     }
 
-    private fun insertDataAtPosition() {
+    private fun insertDataAtPosition(callBack: CallBackResult) {
         val item = chooseItemInfo
         MainViewModel.database.child(DatabaseEnum.POSITION.standard)
             .child(item.itemPosition)
             .child(item.itemCode)
             .setValue(Position(item.itemQuantity))
+            .addOnSuccessListener {
+                callBack.callBack()
+            }
     }
 
-    private fun insertItemCode() {
+    private fun insertItemCode(callBack: CallBackResult) {
         val item = chooseItemInfo
         MainViewModel.database.child(DatabaseEnum.ITEMCODE.standard)
             .child(item.itemCategoryCode)
             .child(item.itemCode)
             .setValue(ItemCode(item.itemName, item.itemSize))
+            .addOnSuccessListener {
+                callBack.callBack()
+            }
     }
 
     private fun updateQuantityData(callBack: DataBaseCallBack) {
@@ -231,13 +245,20 @@ class InputItemListViewModel : ViewModel() {
             .addOnSuccessListener {
                 if (it.value == null) {
                     //todo 해당 자리 아이템 없음
-                    insertDataAtPosition()
-                    callBack.callBack()
+                    insertDataAtPosition(object : CallBackResult {
+                        override fun callBack() {
+                            callBack.callBack()
+                        }
+                    })
                 } else {
                     //todo 해당 자리 아이템 있음
                     updateDataPosition(callBack)
                 }
             }
+    }
+
+    interface CallBackResult {
+        fun callBack()
     }
 
     fun insertData(callBack: DataBaseCallBack) {
@@ -252,15 +273,29 @@ class InputItemListViewModel : ViewModel() {
                 updateQuantityData(callBack)
             } else {
                 //todo 수량이 없음
-                insertDataAtQuantity()
-                insertDataAtPosition()
-                callBack.callBack()
+                insertDataAtQuantity(object : CallBackResult {
+                    override fun callBack() {
+                        insertDataAtPosition(object : CallBackResult {
+                            override fun callBack() {
+                                callBack.callBack()
+                            }
+                        })
+                    }
+                })
             }
         } else {
             //todo 코드가 없음 <첫 아이템>
-            insertDataAtQuantity()
-            insertDataAtPosition()
-            callBack.callBack()
+
+            insertDataAtQuantity(object : CallBackResult {
+                override fun callBack() {
+                    insertDataAtPosition(object : CallBackResult {
+                        override fun callBack() {
+                            callBack.callBack()
+                        }
+                    })
+                }
+            })
+
         }
     }
 }

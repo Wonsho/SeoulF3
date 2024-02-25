@@ -1,15 +1,12 @@
 package com.example.seoulf3.outputwork.outputnondata.scanposition
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
-import com.example.seoulf3.data.Position
+import com.example.seoulf3.data.ErrorData
 import com.example.seoulf3.data.Quantity
-import com.example.seoulf3.outputwork.work.workoutput.WorkOutViewModel
 import com.google.firebase.database.ktx.getValue
-import java.util.Objects
 
 class ScanPositionViewModel : ViewModel() {
 
@@ -26,12 +23,176 @@ class ScanPositionViewModel : ViewModel() {
     private var outputtedQ = 0 // 아이템 출고된 수량
     private var maxQ = "" // 아이템 출고해야되는 양
 
+
+    interface CallBack {
+        fun callBack()
+    }
+
+    fun insertError(callBack: ScanPositionActivity.CallBackResult) {
+        val errorData = ErrorData(this.itemCode, this.itemCategory, this.itemName, this.itemSize)
+        MainViewModel.database.child(DatabaseEnum.ERROR.standard)
+            .child(this.itemCode).setValue(errorData)
+            .addOnSuccessListener {
+                itemPositionDataList.removeAt(nowCount)
+                maxCount--
+
+                if (maxCount == 0) {
+                    callBack.callBack(ScanPositionActivity.Result.FINISH)
+                } else {
+                    if (maxCount == nowCount) {
+                        nowCount = 0
+                    } else {
+                        nowCount++
+                    }
+                    callBack.callBack(ScanPositionActivity.Result.NEXT)
+                }
+            }
+    }
+
+    fun insertErrorWithData(q: String, callBackResult: ScanPositionActivity.CallBackResult) {
+        val nowPositionData = itemPositionDataList[nowCount]
+        val outputQ = q.toInt()
+        this.outputtedQ += outputQ
+        decPositionQ(q, nowPositionData.position, object : CallBack {
+            override fun callBack() {
+                decQuantityData(q, object : CallBack {
+                    override fun callBack() {
+                        insertError(callBackResult)
+                    }
+                })
+            }
+        })
+
+
+    }
+
+    fun insertData(q: String, callBackResult: ScanPositionActivity.CallBackResult) {
+        //todo outputtedQ++ *
+        // database.position -- *
+        // database.quantity -- *
+        // if(outputtedQ == maxQ) -> finish *
+        // .
+        // else ->
+        // PositionData :: quantityInPosition --
+        // if (quantityInPosition == 0) -> itemPositionDataList.removeAt(nowCount)
+        // maxCount-- *
+        // if (maxCount.size -> 0) -> finish
+        // .
+        // else NextData
+        val nowPositionData = itemPositionDataList[nowCount]
+        val outputQ = q.toInt()
+        this.outputtedQ += outputQ
+        decPositionQ(q, nowPositionData.position, object : CallBack {
+            override fun callBack() {
+                decQuantityData(q, object : CallBack {
+                    override fun callBack() {
+                        //todo 다음 작업
+                        if (outputQ.toInt() == maxQ.toInt()) {
+                            callBackResult.callBack(ScanPositionActivity.Result.FINISH)
+                        } else {
+                            val qInP = nowPositionData.quantityInPosition
+                            val decQ = qInP.toInt() - q.toInt()
+                            nowPositionData.quantityInPosition = decQ
+
+                            if (decQ == 0) {
+                                itemPositionDataList.removeAt(nowCount)
+                                maxCount--
+
+                                if (maxCount == 0) {
+                                    callBackResult.callBack(ScanPositionActivity.Result.FINISH)
+                                    //todo return FINISH
+
+                                } else {
+                                    if (maxCount == nowCount) {
+                                        nowCount = 0
+                                    }
+                                    callBackResult.callBack(ScanPositionActivity.Result.NEXT)
+                                    //todo return NEXT
+                                }
+                            } else {
+                                itemPositionDataList[nowCount] = nowPositionData
+                                nowCount++
+                                if (nowCount == maxCount) {
+                                    nowCount = 0
+                                }
+                                callBackResult.callBack(ScanPositionActivity.Result.NEXT)
+                                //todo return NEXT
+                            }
+
+                        }
+                    }
+                })
+            }
+        })
+    }
+
+    private fun decPositionQ(q: String, nowPosition: String, callBack: CallBack) {
+        MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+            .child(nowPosition)
+            .child(this.itemCode)
+            .child("quantityInPosition").get()
+            .addOnSuccessListener {
+
+                val qInp = it.getValue().toString()
+                val decResult = qInp.toInt() - q.toInt()
+
+                if (decResult == 0) {
+                    MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+                        .child(nowPosition)
+                        .child(this.itemCode)
+                        .child("quantityInPosition").removeValue()
+                        .addOnSuccessListener {
+                            callBack.callBack()
+                        }
+                } else {
+
+                    MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+                        .child(nowPosition)
+                        .child(this.itemCode)
+                        .child("quantityInPosition").setValue(decResult.toString())
+                        .addOnSuccessListener {
+                            callBack.callBack()
+                        }
+                }
+
+            }
+    }
+
+    fun decQuantityData(q: String, callBack: CallBack) {
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(this.itemCategory).child(this.itemCode)
+            .get()
+            .addOnSuccessListener {
+                val data = it.getValue<Quantity>()!!
+                val qInD = data.quantity.toString().toInt()
+                val decResult = qInD - q.toInt()
+
+                if (decResult == 0) {
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(this.itemCategory).child(this.itemCode).removeValue()
+                        .addOnSuccessListener {
+                            callBack.callBack()
+                        }
+                } else {
+                    data.quantity = decResult.toString()
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(this.itemCategory).child(this.itemCode)
+                        .setValue(data)
+                        .addOnSuccessListener {
+                            callBack.callBack()
+                        }
+                }
+            }
+    }
+
+
     fun getOutputQ() = this.outputtedQ.toString()
 
     fun getNowPositionQ(): String {
         val item = itemPositionDataList[nowCount]
         return item.quantityInPosition.toString()
     }
+
     fun getNowPosition(): String {
         val nowItem = itemPositionDataList[nowCount]
         return nowItem.position

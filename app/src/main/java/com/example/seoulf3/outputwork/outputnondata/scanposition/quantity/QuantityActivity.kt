@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityOutputCheckBinding
 import com.example.seoulf3.outputwork.outputnondata.scanposition.ScanPositionActivity
+import com.google.android.gms.common.internal.Objects.ToStringHelper
 import kotlin.math.max
 
 class QuantityActivity : AppCompatActivity() {
@@ -178,7 +179,7 @@ class QuantityActivity : AppCompatActivity() {
         val result = this.result.DATA
         val q = binding.tvNum.text.toString()
         intent.putExtra("q", q)
-        setResult(result)
+        setResult(result, intent)
         finish()
     }
 
@@ -187,7 +188,7 @@ class QuantityActivity : AppCompatActivity() {
         val result = this.result.DATA_NOT_ENOUGH
         val q = binding.tvNum.text.toString()
         intent.putExtra("q", q)
-        setResult(result)
+        setResult(result, intent)
         finish()
     }
 
@@ -196,7 +197,7 @@ class QuantityActivity : AppCompatActivity() {
         val result = this.result.DATA_WITH_ERROR
         val q = binding.tvNum.text.toString()
         intent.putExtra("q", q)
-        setResult(result)
+        setResult(result, intent)
         finish()
     }
 
@@ -205,7 +206,7 @@ class QuantityActivity : AppCompatActivity() {
         val result = this.result.ONLY_ERROR
         val q = binding.tvNum.text.toString()
         intent.putExtra("q", q)
-        setResult(result)
+        setResult(result, intent)
         finish()
     }
 
