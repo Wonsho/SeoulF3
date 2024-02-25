@@ -1,10 +1,9 @@
-package com.example.seoulf3.checkstock.`in`
+package com.example.seoulf3.checkstock.scan
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import com.example.seoulf3.R
 import com.example.seoulf3.databinding.ActivityStockBarcodeScanBinding
 
 class StockBarcodeScanActivity : AppCompatActivity() {

@@ -14,6 +14,10 @@ class BeforeCheckViewModel : ViewModel() {
     private var itemNameMapItemData = mutableMapOf<String, ErrorData>()
 
 
+    fun getErrorDataByIndex(i: Int): ErrorData {
+        val itemName = itemNameList[i]
+        return itemNameMapItemData[itemName]!!
+    }
     fun getItemName() = this.itemNameList
 
     fun getErrorDataFromDatabase(callBack: DataBaseCallBack) {
