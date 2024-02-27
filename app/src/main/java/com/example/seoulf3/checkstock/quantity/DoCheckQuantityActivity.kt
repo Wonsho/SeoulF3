@@ -30,6 +30,8 @@ class DoCheckQuantityActivity : AppCompatActivity() {
         this.itemSize = itemSize
         this.itemPosition = position
         this.qInp = qInPo
+        setOnClick()
+        setView()
         setContentView(binding.root)
     }
 

@@ -33,6 +33,7 @@ class ScanPositionViewModel : ViewModel() {
         MainViewModel.database.child(DatabaseEnum.ERROR.standard)
             .child(this.itemCode).setValue(errorData)
             .addOnSuccessListener {
+                //302010
                 itemPositionDataList.removeAt(nowCount)
                 maxCount--
 
@@ -41,8 +42,6 @@ class ScanPositionViewModel : ViewModel() {
                 } else {
                     if (maxCount == nowCount) {
                         nowCount = 0
-                    } else {
-                        nowCount++
                     }
                     callBack.callBack(ScanPositionActivity.Result.NEXT)
                 }

@@ -3,6 +3,7 @@ package com.example.seoulf3.checkstock
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
@@ -44,6 +45,10 @@ class BeforeCheckStockActivity : AppCompatActivity() {
         }
 
         (binding.lv.adapter as CheckStockAdapter).setListData(viewModel.getItemName())
+        if (viewModel.getItemName().size == 0) {
+            Toast.makeText(applicationContext, "수량 오류 데이터가 없습니다.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
         (binding.lv.adapter as CheckStockAdapter).notifyDataSetChanged()
     }
 

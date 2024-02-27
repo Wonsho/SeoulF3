@@ -218,7 +218,7 @@ class QuantityActivity : AppCompatActivity() {
                 setResult(RESULT_CANCELED)
                 finish()
             }
-            .setPositiveButton("아니요") { p0, p1 -> }
+            .setNegativeButton("아니요") { p0, p1 -> }
             .create().show()
 
     }

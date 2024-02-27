@@ -4,10 +4,12 @@ import androidx.lifecycle.ViewModel
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.MainViewModel
+import com.example.seoulf3.data.Quantity
+import com.google.firebase.database.ktx.getValue
 
 class DoCheckStockViewModel : ViewModel() {
 
-    private data class PositionData(var position: String, var quantityInPo: Int )
+    private data class PositionData(var position: String, var quantityInPo: Int)
 
     private object ItemInfo {
         var itemName: String = ""
@@ -22,6 +24,62 @@ class DoCheckStockViewModel : ViewModel() {
 
     private var checkedQ = 0 // 현재까지의 체크된 수량
     private var qInData = 0 // 체크해야되는 수량
+
+
+    fun finishWork() {
+
+        MainViewModel.database.child(DatabaseEnum.ERROR.standard)
+            .child(getItemCode())
+            .removeValue()
+
+        MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+            .child(getItemCategory())
+            .child(getItemCode())
+            .get().addOnSuccessListener {
+                val item = it.getValue<Quantity>()!!
+                item.quantity = checkedQ.toString()
+
+                if (item.releaseQuantity.toString().toInt() > checkedQ) {
+                    item.releaseQuantity = checkedQ.toString()
+                }
+
+                if (checkedQ == 0) {
+                    //todo 데이터 삭제
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(getItemCategory())
+                        .child(getItemCode())
+                        .removeValue()
+                } else {
+                    MainViewModel.database.child(DatabaseEnum.QUANTITY.standard)
+                        .child(getItemCategory())
+                        .child(getItemCode()).setValue(item)
+                }
+            }
+
+        for (i in positionDataList) {
+
+            if (i.quantityInPo == 0) {
+                MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+                    .child(i.position)
+                    .child(getItemCode()).removeValue()
+            } else {
+                MainViewModel.database.child(DatabaseEnum.POSITION.standard)
+                    .child(i.position)
+                    .child(getItemCode())
+                    .child("quantityInPosition")
+                    .setValue(i.quantityInPo)
+            }
+
+        }
+    }
+
+    fun inputData(q: String): Boolean {
+        val nowItem = positionDataList[nowData]
+        nowItem.quantityInPo = q.toInt()
+        checkedQ += q.toInt()
+        nowData++
+        return nowData == maxData
+    }
 
     fun getNowData() = this.nowData.toString()
 
@@ -59,7 +117,6 @@ class DoCheckStockViewModel : ViewModel() {
                         maxData = positionDataList.size
                         callBack.callBack()
                     }
-                //todo position Data 가져오기
             }
         })
     }

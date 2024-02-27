@@ -69,6 +69,8 @@ class ScanPositionActivity : AppCompatActivity() {
     }
 
     private fun startScan() {
+        onPause()
+        onResume()
         binding.qrScanner.apply {
             setStatusText("")
             decodeContinuous { result ->
@@ -79,6 +81,7 @@ class ScanPositionActivity : AppCompatActivity() {
                         "잘못된 위치 입니다.\n${viewModel.getNowPosition()} 해당 자리를 스캔해주세요.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    startScan()
                 } else {
                     val intent = Intent(this@ScanPositionActivity, QuantityActivity::class.java)
                     // 포지션, 이름, 사아즈, 출고된 수량, 출고해야되는 수량, 현포지션 수량
@@ -96,6 +99,7 @@ class ScanPositionActivity : AppCompatActivity() {
                     intent.putExtra("maxQ", maxQ)
                     intent.putExtra("qInPosition", qInPosition)
                     startActivityForResult(intent, 8)
+                    onPause()
                     //todo 해당 포지션 맞음 수량 입력 인텐드 실행
                 }
             }
@@ -196,6 +200,7 @@ class ScanPositionActivity : AppCompatActivity() {
 
             } else if (resultCode == Result.DATA_WITH_ERROR) {
                 //데이터 와 현수량 이상
+                Toast.makeText(applicationContext, "T", Toast.LENGTH_SHORT).show()
                 val q = data!!.getStringExtra("q").toString()
                 viewModel.insertErrorWithData(q, object : CallBackResult {
                     override fun callBack(resultCode: Int) {
@@ -216,6 +221,7 @@ class ScanPositionActivity : AppCompatActivity() {
 
             } else if (resultCode == Result.ONLY_ERROR) {
                 //현재 수량 이상
+                Toast.makeText(applicationContext, "S", Toast.LENGTH_SHORT).show()
                 viewModel.insertError(object : CallBackResult {
                     override fun callBack(resultCode: Int) {
                         when (resultCode) {
