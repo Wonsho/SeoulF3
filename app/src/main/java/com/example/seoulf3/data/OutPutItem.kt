@@ -1,3 +1,3 @@
 package com.example.seoulf3.data
 
-data class OutPutItem(var itemName: String? = "", var itemSize:String? = "", var itemReleaseQ: String? = "", var categoryCode: String? = "", var releasedQ: String? = "0")
+data class OutPutItem(var itemName: String? = "", var itemSize:String? = "", var itemReleaseQ: String? = "", var categoryCode: String? = "")

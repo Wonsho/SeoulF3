@@ -4,19 +4,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
-import com.example.seoulf3.DatabaseEnum
 import com.example.seoulf3.LoadingDialog
-import com.example.seoulf3.MainViewModel
 import com.example.seoulf3.databinding.ActivityOutPutUpdateBinding
 import com.example.seoulf3.outputupdate.updatesize.OutPutUpdateSizeActivity
-import com.example.seoulf3.outputupdate.updatesize.UpdateSizeViewModel
 
 class OutPutUpdateActivity : AppCompatActivity() {
     private lateinit var dialog: AlertDialog
@@ -27,8 +22,8 @@ class OutPutUpdateActivity : AppCompatActivity() {
     }
     data class ChildData(var itemCode: String? = "", var itemName: String? = "", var itemSize: String? = "", var itemQ: String?  = "", var categoryCode: String = "")
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
+
         if (!::binding.isInitialized) {
             binding = ActivityOutPutUpdateBinding.inflate(layoutInflater)
         }
@@ -93,8 +88,6 @@ class OutPutUpdateActivity : AppCompatActivity() {
             val itemName = viewModel.getItemNameByIndex(i)
             val itemCategoryCode = viewModel.getItemCategoryCodeByIndex(i)
             val itemSizeCode = viewModel.getSizeCodeByIndex(i)
-            Toast.makeText(applicationContext, itemCategoryCode, Toast.LENGTH_SHORT).show()
-
             val intent = Intent(this@OutPutUpdateActivity, OutPutUpdateSizeActivity::class.java )
             intent.putExtra("name", itemName)
             intent.putExtra("sizeCode", itemSizeCode)
@@ -138,8 +131,6 @@ class OutPutUpdateActivity : AppCompatActivity() {
             val itemQ = data!!.getStringExtra("quantity").toString()
             val itemCode = data!!.getStringExtra("itemCode").toString()
             val category = data!!.getStringExtra("category").toString()
-
-            Toast.makeText(applicationContext, category, Toast.LENGTH_SHORT).show()
             val data = ChildData(itemCode, itemName, itemSize, itemQ, category)
             viewModel.insertDataInModel(data)
             setListview()

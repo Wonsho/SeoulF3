@@ -136,7 +136,7 @@ class InputItemListViewModel : ViewModel() {
         MainViewModel.database.child(DatabaseEnum.POSITION.standard).get()
             .addOnSuccessListener {
                 var recommendPosition = ""
-                var quantity: Int = 999999999
+                var quantity: Int = -1
                 val itemListInPosition = it.children
 
                 for (itemList in itemListInPosition) {
@@ -146,7 +146,7 @@ class InputItemListViewModel : ViewModel() {
                     for (i in _itemList) {
                         if (i.key == chooseItemInfo.itemCode) {
                             val q = i.child("quantityInPosition").value.toString().toInt()
-                            if (q <= quantity) {
+                            if (q >= quantity) {
                                 recommendPosition = itemList.key.toString()
                                 quantity = q
                             }

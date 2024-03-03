@@ -6,8 +6,10 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.media.tv.interactive.TvInteractiveAppService
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.widget.Toast
+import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
@@ -37,86 +39,50 @@ class WorkOutActivity : AppCompatActivity() {
             binding = ActivityWorkOutBinding.inflate(layoutInflater)
         }
 
+        binding.lay.visibility = View.VISIBLE
+
+
         viewModel.setDate(intent.getStringExtra("date").toString())
         setContentView(binding.root)
 
-        viewModel.getOutputData(object : DataBaseCallBack {
+        viewModel.getDataFromDB(object : DataBaseCallBack {
             override fun callBack() {
-                binding.lay.visibility = View.GONE
-                binding.tvSize.text = viewModel.getItemSize()
-                binding.tvTimes.text = viewModel.getItemNowCount()
-                startScan()
-            }
-        })
-    }
-
-    val FROM_SCAN = 2
-
-    val FROM_Q = 3
-    fun startScan() {
-        viewModel.getDataAtPosition(object : DataBaseCallBack {
-            override fun callBack() {
-                val itemPosition = viewModel.getNowItemPosition()
-                val intent = Intent(this@WorkOutActivity, OutWorkScanActivity::class.java)
-                intent.putExtra("position", itemPosition)
-                startActivityForResult(intent, FROM_SCAN)
-            }
-
-        })
-    }
-
-    object Notion {
-        val NEXT_ITEM = 0
-        val NEXT_POSITION = 1
-    }
-
-    interface CheckCallBack {
-        fun callBack(b: Int)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == RESULT_OK) {
-
-            if (requestCode == FROM_SCAN) {
-                //todo 수량체크
-                val intent = Intent(this@WorkOutActivity, OutputCheckActivity::class.java)
-                val itemName = viewModel.getSelectedItemName()
-                val itemSize = viewModel.getSelectedItemSize()
-                val position = viewModel.getSelectedItemPosition()
-                val rQ = viewModel.getReleaseQ()
-
-                intent.putExtra("name", itemName)
-                intent.putExtra("position", position)
-                intent.putExtra("size", itemSize)
-                intent.putExtra("releaseQ", rQ)
-                intent.putExtra("positionQ", viewModel.getNowItemPositionQuantity())
-                startActivityForResult(intent, FROM_Q)
-            }
-
-            if (requestCode == FROM_Q) {
-                //todo 갯수가 현재 재고와 맞을경우 현 포지션 삭제
-                val q = data!!.getStringExtra("outputQ").toString()
-                viewModel.checkData(q, object : CheckCallBack {
-                    override fun callBack(b: Int) {
-                        if (b == Notion.NEXT_ITEM) {
-                            //todo 다음 아이템 -> 버튼 눌러야 작동
-                            Toast.makeText(applicationContext, "NEXTITEM", Toast.LENGTH_SHORT).show()
-                        } else if(b == Notion.NEXT_POSITION) {
-                            //todo 다음 포지션
-                            //todo 버튼 숨긴다음 딜레이 준다음 다음 작업 시행
-                            //todo 바로 작동
-                            Toast.makeText(applicationContext, "NEXTPOSITION", Toast.LENGTH_SHORT).show()
-                        }
+                viewModel.getPositionDataFromDatabase(object : DataBaseCallBack {
+                    override fun callBack() {
+                        delayView()
                     }
                 })
             }
-        } else if (resultCode == RESULT_FIRST_USER && requestCode == FROM_Q) {
-            //todo 수량 에러로 넘어옴
-            val q = data!!.getStringExtra("outputQ").toString()
-            viewModel.insertError(q)
+        })
+    }
+
+    fun setOnClick() {
+        binding.btnBack.setOnClickListener {
+            //todo 작업 끝 다이로그
         }
 
+        binding.btnNext.setOnClickListener {
+            //todo 다음 작업
+        }
     }
+
+
+    fun delayView() {
+        binding.lay.visibility = View.GONE
+        binding.tvItemName.text = WorkOutViewModel.NowItem.getNowItemName() // 현재 아이템 이름
+        binding.tvItemSize.text = WorkOutViewModel.NowItem.getNowItemSize()// 현재 아이템 사이즈
+        binding.tvNeedItemQ.text = viewModel.outputDataInfoList.size.toString()// 현제 남은 아이템 갯수
+
+        binding.tvItemQ.text = WorkOutViewModel.NowItem.getOriginReleaseQ().toString() // 현 아이템 출고 해야되는 개수
+        binding.tvReleasedQ.text = WorkOutViewModel.NowItem.nowItemOriginReleaseQ.toString() // 현 아이템 출고 된 개수
+
+        Toast.makeText(applicationContext, WorkOutViewModel.NowItem.dataPositionList.size.toString(),Toast.LENGTH_SHORT).show()
+        Handler().postDelayed(Runnable {
+            binding.lay.visibility = View.GONE
+            //todo startScanActivity
+            val intent = Intent(this@WorkOutActivity, OutWorkScanActivity::class.java)
+//            startActivityForResult(intent, 8)
+        }, 3000)
+    }
+
 }

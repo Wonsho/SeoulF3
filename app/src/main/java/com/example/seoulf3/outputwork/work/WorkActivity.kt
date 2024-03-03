@@ -1,15 +1,12 @@
 package com.example.seoulf3.outputwork.work
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.seoulf3.DataBaseCallBack
 import com.example.seoulf3.LoadingDialog
-import com.example.seoulf3.R
-import com.example.seoulf3.databinding.ActivityOutPutWorkBinding
 import com.example.seoulf3.databinding.ActivityWorkBinding
 import com.example.seoulf3.outputwork.work.workoutput.WorkOutActivity
 
@@ -22,6 +19,8 @@ class WorkActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         if (!::dialog.isInitialized) {
             binding = ActivityWorkBinding.inflate(layoutInflater)
         }
