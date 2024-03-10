@@ -24,6 +24,8 @@ class ScanPositionActivity : AppCompatActivity() {
         val FINISH = 15
         val NEXT = 16
         val SAME_POSITION = 17
+        val NEXT_POSITION = 18
+        val NEXT_ITEM = 19
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

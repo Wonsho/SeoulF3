@@ -27,6 +27,8 @@ class OutPutWorkActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Toast.makeText(applicationContext, "OPWA", Toast.LENGTH_SHORT).show()
+
         if (!::dialog.isInitialized) {
             dialog = LoadingDialog().getDialog(this@OutPutWorkActivity)
         }

@@ -20,6 +20,7 @@ class WorkActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        Toast.makeText(applicationContext, "WA", Toast.LENGTH_SHORT).show()
 
         if (!::dialog.isInitialized) {
             binding = ActivityWorkBinding.inflate(layoutInflater)

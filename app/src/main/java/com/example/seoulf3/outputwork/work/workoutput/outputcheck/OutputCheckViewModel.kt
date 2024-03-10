@@ -6,9 +6,19 @@ class OutputCheckViewModel : ViewModel(){
     private var position = ""
     private var itemName = ""
     private var itemSize = ""
-    private var remainedBox = ""
-    private var maxQ = ""
+    private var itemNeedQ = ""
+    private var itemSavedQ = ""
 
+
+    fun getPosition() = this.position
+
+    fun getItemName() = this.itemName
+
+    fun getItemSize() = this.itemSize
+
+    fun getItemNeedQ() = this.itemNeedQ
+
+    fun getItemSavedQ() = this.itemSavedQ
     fun setPosition(position: String) {
         this.position = position
     }
@@ -21,22 +31,13 @@ class OutputCheckViewModel : ViewModel(){
         this.itemSize = itemSize
     }
 
-    fun setRemainedBox(remainedBox: String) {
-        this.remainedBox = remainedBox
+    fun setItemNeedQ(itemNeedQ: String) {
+        this.itemNeedQ = itemNeedQ
     }
 
-    fun setMaxQ(maxQ: String) {
-        this.maxQ = maxQ
+    fun setItemSavedQ(savedQ: String) {
+        this.itemSavedQ = savedQ
     }
 
-    fun getPosition() = this.position
-
-    fun getItemName() = this.itemName
-
-    fun getItemSize() = this.itemSize
-
-    fun getItemRemainedBox() = this.remainedBox
-
-    fun getMaxQ() = this.maxQ
 
 }
